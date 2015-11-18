@@ -5,6 +5,7 @@ from django.views.generic.base import View
 from django.contrib.auth.hashers import make_password
 from backs.models import *
 from backs.LoginBackend import *
+from backs.GetForm import *
 from functools import wraps
 from datetime import *
 import json
@@ -305,39 +306,53 @@ class user_add(View):
 
     @authenticated
     def post(self, request):
-        error = []
-        role = request.POST.get('role', None)
-        account = request.POST.get('name', None)
-        password = request.POST.get('password', None)
-        realname = request.POST.get('realname', None)
-        nickname = request.POST.get('nickname', None)
-        email = request.POST.get('email', None)
-        phone = request.POST.get('phone', None)
-        gender = request.POST.get('gender', None)
-        joined = datetime.now()
-        locked = datetime.now()
-        visits = 0
+        form = GetForm(request)
+        form.post("role", required=True)
+        form.post("account", text="用户名", required=True)
+        form.post("password", text="密码", required=True)
+        form.post("realname")
+        form.post("nickname")
+        form.post("email", text="电子邮件", required=True, validType="email")
+        form.post("phone", text="手机号码", required=True, validType="mobile")
+        form.post("gender")
+        (ret, data) = form.check()
 
-        if role == '':
-            erro.append({'name': 'role', 'value': '请选择用户组'})
-        if account == '':
-            error.append({'name': 'name', 'value': '请输入用户名'})
-        if password == '':
-            error.append({'name': 'password', 'value': '请输入密码'})
-        if password == '':
-            error.append({'name': 'email', 'value': '请输入电子邮件'})
-        if len(error) > 0:
-            json_data = json.dumps({'error': 1, 'info': error})
-            return HttpResponse(json_data, content_type='application/json')
-
-        password = make_password(password)
-
-        a = Account(role=role, account=account, password=password, realname=realname, nickname=nickname,
-                    email=email, phone=phone, gender=gender, joined=joined, visits=0, locked=locked)
-        a.save()
-        userid = a.id
-        json_data = json.dumps({'error': 0, 'id': userid})
+        json_data = json.dumps({'error': ret, 'info': data})
         return HttpResponse(json_data, content_type='application/json')
+
+        # error = []
+        # role = request.POST.get('role', None)
+        # account = request.POST.get('name', None)
+        # password = request.POST.get('password', None)
+        # realname = request.POST.get('realname', None)
+        # nickname = request.POST.get('nickname', None)
+        # email = request.POST.get('email', None)
+        # phone = request.POST.get('phone', None)
+        # gender = request.POST.get('gender', None)
+        # joined = datetime.now()
+        # locked = datetime.now()
+        # visits = 0
+
+        # if role == '':
+        #     erro.append({'name': 'role', 'value': '请选择用户组'})
+        # if account == '':
+        #     error.append({'name': 'name', 'value': '请输入用户名'})
+        # if password == '':
+        #     error.append({'name': 'password', 'value': '请输入密码'})
+        # if password == '':
+        #     error.append({'name': 'email', 'value': '请输入电子邮件'})
+        # if len(error) > 0:
+        #     json_data = json.dumps({'error': 1, 'info': error})
+        #     return HttpResponse(json_data, content_type='application/json')
+
+        # password = make_password(password)
+
+        # a = Account(role=role, account=account, password=password, realname=realname, nickname=nickname,
+        #             email=email, phone=phone, gender=gender, joined=joined, visits=0, locked=locked)
+        # a.save()
+        # userid = a.id
+        # json_data = json.dumps({'error': 0, 'id': userid})
+        # return HttpResponse(json_data, content_type='application/json')
 
 
 @authenticated
