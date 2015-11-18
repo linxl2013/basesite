@@ -1,0 +1,90 @@
+<div id="add_user_panel" class="easyui-panel" title="{{ title }}" style="width:100%" data-options="fit:true,tools:'#add_user_panel_tool'">
+	<div style="padding:10px 60px 20px 60px">
+		<!-- <a href="#" id="btn_save" class="easyui-linkbutton" data-options="iconCls:'icon-save'">Save</a> -->
+		<form id="user_panel" method="post" action="/admin/user/add" data-options="novalidate:true">
+			<table cellpadding="5">
+				<tr>
+					<td>用户名:</td>
+					<td><input class="easyui-textbox" type="text" name="name" data-options="required:true"></input></td>
+				</tr>
+				<tr>
+					<td>密码:</td>
+					<td><label><input class="easyui-textbox" type="password" name="password"></input> 不修改密码时留空</label></td>
+				</tr>
+				<tr>
+					<td>重复密码:</td>
+					<td>
+						<input class="easyui-textbox" type="password" name="rpwd" data-options="">
+					</td>
+				</tr>
+				<tr>
+					<td>手机号码:</td>
+					<td><input class="easyui-textbox" type="text" name="phone" data-options="required:true,validType:'mobile'"></input></td>
+				</tr>
+				<tr>
+					<td>电子邮件:</td>
+					<td><input class="easyui-textbox" type="text" name="email" data-options="required:true,validType:'email'"></input></td>
+				</tr>
+				<tr>
+					<td>真实姓名:</td>
+					<td><input class="easyui-textbox" type="text" name="realname"></input></td>
+				</tr>
+				<tr>
+					<td>昵称:</td>
+					<td><input class="easyui-textbox" type="text" name="nickname"></input></td>
+				</tr>
+				<tr>
+					<td>性别:</td>
+					<td>
+						<select class="easyui-combobox" name="gender" dataoptions="panelHeight:'auto'">
+							<option value="m">男</option>
+							<option value="f">女</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>用户组:</td>
+					<td>
+						<select class="easyui-combobox" name="role" dataoptions="panelHeight:'auto'">
+							<option value="1">管理员</option>
+							<option value="2">用户</option>
+						</select>
+					</td>
+				</tr>
+			</table>
+		</form>
+		<div style="text-align:center;padding:5px">
+			<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitForm()">&nbsp;保&nbsp;存&nbsp;</a>&nbsp;&nbsp;
+			<a href="javascript:void(0)" class="easyui-linkbutton" onclick="clearForm()">&nbsp;取&nbsp;消&nbsp;</a>
+		</div>
+	</div>
+</div>
+<div id="add_user_panel_tool">
+	<a href="javascript:void(0)" class="icon-save" onclick="javascript:alert('save')" title="保存"></a>
+</div>
+<script type="text/javascript">
+$('#user_panel').ajaxForm({
+	dataType: 'json',
+	beforeSend:function(){
+		return $('#user_panel').form('enableValidation').form('validate');
+	},
+	success:function(data){
+		if(data.error == 0){
+			$('#tt').tabs('close', '{{ title }}');
+			$('#user_list').datagrid('reload');
+		}else{
+			var str = '';
+			for(var i=0;i<data.info.length;i++){
+				str += data.info[i].value + "\r\n";
+			}
+			alert(str);
+		}
+	}
+});
+function submitForm(){
+	$('#user_panel').submit();
+}
+function clearForm(){
+	$('#user_panel').form('clear');
+}
+</script>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}默认标题{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="/static/js/easyui/themes/bootstrap/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/static/js/easyui/themes/icon.css">
+    <link rel="stylesheet" href="/static/css/kube4.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+    <!-- <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" /> -->
+    <!-- <link rel="stylesheet" type="text/css" href="../../prettify/prettify.css"> -->
+    <!-- <script type="text/javascript" src="../../prettify/prettify.js"></script> -->
+    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/easyui/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/static/js/easyui/locale/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.form.js"></script>
+    <script type="text/javascript" src="/static/js/main.js"></script>
+</head>
+<body class="easyui-layout" style="text-align:left">
+    {% include 'nav.html' %}
+
+    {% include 'menu.html' %}
+    
+    <div region="center">
+        <div id="tt" class="easyui-tabs" fit="true" border="false" plain="true">
+            <div title="欢迎" href="/admin/home" class="content-doc"></div>
+        </div>
+    </div>
+</body>
+</html>

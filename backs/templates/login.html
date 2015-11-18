@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}默认标题{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/kube5.css" type="text/css" />
+    <!-- <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" /> -->
+    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+    <style type="text/css">
+    #page {
+        margin: auto;
+        max-width: 1200px;
+        padding: 30px 3% 30px 0;
+        width: 30%;
+    }
+    #main {
+        padding-bottom: 80px;
+        padding-left: 90px;
+    }
+    </style>
+</head>
+<body>
+    <div id="page">
+    <div id="main">
+    <form method="post" action="" class="forms">
+        <section>
+            <label>帐号 <span id="labname" class="req">*</span></label>
+            <input type="text" id="name" name="user-name" value="{{ name }}" />
+        </section>
+        <section>
+            <label>密码 <span id="labpw" class="req">*</span></label>
+            <input type="password" id="pw" name="user-password" />
+        </section>
+        <section>
+            <button type="primary" class="width-12">登  录</button>
+        </section>
+    </form>
+    </div>
+	</div>
+{% if state == 1 %}
+<script type="text/javascript">
+$(function(){
+    $('#labname').attr('class', 'error').html('帐号错误');
+    $('#name').addClass('input-error').val('').focus();
+});
+</script>
+{% endif %}
+{% if state == 2 %}
+<script type="text/javascript">
+$(function(){
+    $('#labpw').attr('class', 'error').html('密码错误');
+    $('#pw').addClass('input-error').focus();
+});
+</script>
+{% endif %}
+{% if state == 3 %}
+<script type="text/javascript">
+$(function(){
+    $('#labname').addClass('error');
+    $('#name').addClass('input-error').focus();
+    $('#labname').addClass('error');
+    $('#pw').addClass('input-error');
+});
+</script>
+{% endif %}
+</body>
+</html>

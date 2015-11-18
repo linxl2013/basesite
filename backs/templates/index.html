@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+ 
+{% block title %}欢迎光临首页{% endblock %}
+ 
+{% block content %}
+{% include 'ad.html' %}
+这里是首页，欢迎光临<br/>
+
+{% for i in TutorialList %}
+{{ i }}
+{% endfor %}<br/>
+
+{% for key, value in info_dict.items %}
+    {{ key }}: {{ value }}<br/>
+{% endfor %}
+
+{% endblock %}

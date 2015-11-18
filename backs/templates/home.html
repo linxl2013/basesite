@@ -1,0 +1,30 @@
+<h3>Documentation</h3>
+<p>Each component of easyui has properties, methods and events. Users can extend them easily.</p>
+<h4>Properties</h4>
+<p>The properties is defined in jQuery.fn.{plugin}.defaults. For example, the dialog's properties is defined in jQuery.fn.dialog.defaults.</p>
+<h4>Events</h4>
+<p>The events(callback functions) is defined in jQuery.fn.{plugin}.defaults also.</p>
+<h4>Methods</h4>
+<p> The calling method syntax: $('selector').plugin('method', parameter); </p>
+<p>Where:</p>
+<p> </p>
+
+<p> The methods is defined in jQuery.fn.{plugin}.methods. Each method has two parameters: jq and param. The first parameter 'jq' is required, which refers to that jQuery object. The second parameter 'param' refers to the really parameter that pass through the method. For example, to extend a method named 'mymove' for the dialog component, the code looks like this: </p>
+ 
+{% block title %}欢迎光临首页{% endblock %}
+ 
+{% block content %}
+{% include 'ad.html' %}
+这里是首页，欢迎光临<br/>
+
+{% for i in TutorialList %}
+{{ i }}
+{% endfor %}<br/>
+
+{% for key, value in info_dict.items %}
+    {{ key }}: {{ value }}<br/>
+{% endfor %}
+
+{{ text }}
+
+{% endblock %}
