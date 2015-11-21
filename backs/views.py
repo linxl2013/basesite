@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.generic.base import View
 from django.contrib.auth.hashers import make_password
+from django.db import connection, transaction
 from backs.models import *
 from backs.LoginBackend import *
 from backs.GetForm import *
@@ -68,234 +69,41 @@ def user(request):
 
 @authenticated
 def user_list(request):
-    rows = [
-        {
-            'id': 1,
-            'account': '帐号',
-            'realname': '真实姓名',
-            'realname': '昵称',
-            'email': '电子邮件',
-            'phone': '手机',
-            'gender': '性别',
-            'visits': '访问次数',
-            'joined': '加入时间',
-            'locked': '锁定时间',
-        }, {
-            'id': 2,
-            'account': '帐号',
-            'realname': '真实姓名',
-            'realname': '昵称',
-            'email': '电子邮件',
-            'phone': '手机',
-            'gender': '性别',
-            'visits': '访问次数',
-            'joined': '加入时间',
-            'locked': '锁定时间',
-        }, {
-            'id': 3,
-            'account': '帐号',
-            'realname': '真实姓名',
-            'realname': '昵称',
-            'email': '电子邮件',
-            'phone': '手机',
-            'gender': '性别',
-            'visits': '访问次数',
-            'joined': '加入时间',
-            'locked': '锁定时间',
-        }, {
-            'id': 3,
-            'account': '帐号',
-            'realname': '真实姓名',
-            'realname': '昵称',
-            'email': '电子邮件',
-            'phone': '手机',
-            'gender': '性别',
-            'visits': '访问次数',
-            'joined': '加入时间',
-            'locked': '锁定时间',
-        }, {
-            'id': 3,
-            'account': '帐号',
-            'realname': '真实姓名',
-            'realname': '昵称',
-            'email': '电子邮件',
-            'phone': '手机',
-            'gender': '性别',
-            'visits': '访问次数',
-            'joined': '加入时间',
-            'locked': '锁定时间',
-        }, {
-            'id': 3,
-            'account': '帐号',
-            'realname': '真实姓名',
-            'realname': '昵称',
-            'email': '电子邮件',
-            'phone': '手机',
-            'gender': '性别',
-            'visits': '访问次数',
-            'joined': '加入时间',
-            'locked': '锁定时间',
-        }, {
-            'id': 3,
-            'account': '帐号',
-            'realname': '真实姓名',
-            'realname': '昵称',
-            'email': '电子邮件',
-            'phone': '手机',
-            'gender': '性别',
-            'visits': '访问次数',
-            'joined': '加入时间',
-            'locked': '锁定时间',
-        }, {
-            'id': 3,
-            'account': '帐号',
-            'realname': '真实姓名',
-            'realname': '昵称',
-            'email': '电子邮件',
-            'phone': '手机',
-            'gender': '性别',
-            'visits': '访问次数',
-            'joined': '加入时间',
-            'locked': '锁定时间',
-        }, {
-            'id': 3,
-            'account': '帐号',
-            'realname': '真实姓名',
-            'realname': '昵称',
-            'email': '电子邮件',
-            'phone': '手机',
-            'gender': '性别',
-            'visits': '访问次数',
-            'joined': '加入时间',
-            'locked': '锁定时间',
-        }, {
-            'id': 3,
-            'account': '帐号',
-            'realname': '真实姓名',
-            'realname': '昵称',
-            'email': '电子邮件',
-            'phone': '手机',
-            'gender': '性别',
-            'visits': '访问次数',
-            'joined': '加入时间',
-            'locked': '锁定时间',
-        }, {
-            'id': 3,
-            'account': '帐号',
-            'realname': '真实姓名',
-            'realname': '昵称',
-            'email': '电子邮件',
-            'phone': '手机',
-            'gender': '性别',
-            'visits': '访问次数',
-            'joined': '加入时间',
-            'locked': '锁定时间',
-        }, {
-            'id': 3,
-            'account': '帐号',
-            'realname': '真实姓名',
-            'realname': '昵称',
-            'email': '电子邮件',
-            'phone': '手机',
-            'gender': '性别',
-            'visits': '访问次数',
-            'joined': '加入时间',
-            'locked': '锁定时间',
-        }, {
-            'id': 3,
-            'account': '帐号',
-            'realname': '真实姓名',
-            'realname': '昵称',
-            'email': '电子邮件',
-            'phone': '手机',
-            'gender': '性别',
-            'visits': '访问次数',
-            'joined': '加入时间',
-            'locked': '锁定时间',
-        }, {
-            'id': 3,
-            'account': '帐号',
-            'realname': '真实姓名',
-            'realname': '昵称',
-            'email': '电子邮件',
-            'phone': '手机',
-            'gender': '性别',
-            'visits': '访问次数',
-            'joined': '加入时间',
-            'locked': '锁定时间',
-        }, {
-            'id': 3,
-            'account': '帐号',
-            'realname': '真实姓名',
-            'realname': '昵称',
-            'email': '电子邮件',
-            'phone': '手机',
-            'gender': '性别',
-            'visits': '访问次数',
-            'joined': '加入时间',
-            'locked': '锁定时间',
-        }, {
-            'id': 3,
-            'account': '帐号',
-            'realname': '真实姓名',
-            'realname': '昵称',
-            'email': '电子邮件',
-            'phone': '手机',
-            'gender': '性别',
-            'visits': '访问次数',
-            'joined': '加入时间',
-            'locked': '锁定时间',
-        }, {
-            'id': 3,
-            'account': '帐号',
-            'realname': '真实姓名',
-            'realname': '昵称',
-            'email': '电子邮件',
-            'phone': '手机',
-            'gender': '性别',
-            'visits': '访问次数',
-            'joined': '加入时间',
-            'locked': '锁定时间',
-        }, {
-            'id': 3,
-            'account': '帐号',
-            'realname': '真实姓名',
-            'realname': '昵称',
-            'email': '电子邮件',
-            'phone': '手机',
-            'gender': '性别',
-            'visits': '访问次数',
-            'joined': '加入时间',
-            'locked': '锁定时间',
-        }, {
-            'id': 3,
-            'account': '帐号',
-            'realname': '真实姓名',
-            'realname': '昵称',
-            'email': '电子邮件',
-            'phone': '手机',
-            'gender': '性别',
-            'visits': '访问次数',
-            'joined': '加入时间',
-            'locked': '锁定时间',
-        }, {
-            'id': 3,
-            'account': '帐号',
-            'realname': '真实姓名',
-            'realname': '昵称',
-            'email': '电子邮件',
-            'phone': '手机',
-            'gender': '性别',
-            'visits': '访问次数',
-            'joined': '加入时间',
-            'locked': '锁定时间',
-        }
-    ]
+    total = Account.objects.count()
 
-    data = {'total': len(rows), 'rows': rows}
-    # data = {'total': 0, 'rows': []}
+    page = request.POST.get('page')
+    count = request.POST.get('rows')
 
-    return HttpResponse(json.dumps(data))
+    sql = '''
+    select id, account, realname, nickname, email, phone, gender, visits, joined, locked, islock 
+    from backs_account 
+    limit %s, %s
+    ''' % ((int(page) - 1) * int(count), count)
+
+    cursor = connection.cursor()
+    cursor.execute(sql)
+    fetchall = cursor.fetchall()
+
+    rows = []
+    for obj in fetchall:
+        dic = {}
+        dic["id"] = obj[0]
+        dic["account"] = obj[1]
+        dic["realname"] = obj[2]
+        dic["nickname"] = obj[3]
+        dic["email"] = obj[4]
+        dic["phone"] = obj[5]
+        dic["gender"] = obj[6]
+        dic["visits"] = obj[7]
+        dic["joined"] = obj[8]
+        dic["locked"] = obj[9]
+        rows.append(dic)
+
+    data = {'total': total, 'rows': rows}
+
+    def date_handler(obj):
+        return obj.isoformat() if hasattr(obj, 'isoformat') else obj
+    return HttpResponse(json.dumps(data, default=date_handler))
 
 
 class user_add(View):
@@ -317,42 +125,22 @@ class user_add(View):
         form.post("gender")
         (ret, data) = form.check()
 
-        json_data = json.dumps({'error': ret, 'info': data})
+        if ret == 1:
+            json_data = json.dumps({'error': ret, 'info': data})
+            return HttpResponse(json_data, content_type='application/json')
+
+        joined = datetime.now()
+        locked = datetime.now()
+        visits = 0
+
+        password = make_password(data["password"])
+
+        a = Account(role=data["role"], account=data["account"], password=password, realname=data["realname"], nickname=data[
+                    "nickname"], email=data["email"], phone=data["phone"], gender=data["gender"], joined=joined, visits=0, locked=locked)
+        a.save()
+        userid = a.id
+        json_data = json.dumps({'error': 0, 'id': userid})
         return HttpResponse(json_data, content_type='application/json')
-
-        # error = []
-        # role = request.POST.get('role', None)
-        # account = request.POST.get('name', None)
-        # password = request.POST.get('password', None)
-        # realname = request.POST.get('realname', None)
-        # nickname = request.POST.get('nickname', None)
-        # email = request.POST.get('email', None)
-        # phone = request.POST.get('phone', None)
-        # gender = request.POST.get('gender', None)
-        # joined = datetime.now()
-        # locked = datetime.now()
-        # visits = 0
-
-        # if role == '':
-        #     erro.append({'name': 'role', 'value': '请选择用户组'})
-        # if account == '':
-        #     error.append({'name': 'name', 'value': '请输入用户名'})
-        # if password == '':
-        #     error.append({'name': 'password', 'value': '请输入密码'})
-        # if password == '':
-        #     error.append({'name': 'email', 'value': '请输入电子邮件'})
-        # if len(error) > 0:
-        #     json_data = json.dumps({'error': 1, 'info': error})
-        #     return HttpResponse(json_data, content_type='application/json')
-
-        # password = make_password(password)
-
-        # a = Account(role=role, account=account, password=password, realname=realname, nickname=nickname,
-        #             email=email, phone=phone, gender=gender, joined=joined, visits=0, locked=locked)
-        # a.save()
-        # userid = a.id
-        # json_data = json.dumps({'error': 0, 'id': userid})
-        # return HttpResponse(json_data, content_type='application/json')
 
 
 @authenticated

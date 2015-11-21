@@ -5,12 +5,15 @@ import re
 
 class GetForm:
 
-    elements = []
-    data = {}
-    error = []
+    elements = None
+    data = None
+    error = None
     request = None
 
     def __init__(self, request):
+        self.elements = []
+        self.data = {}
+        self.error = []
         self.request = request
 
     def get(self, name, required=False, validType=None, minLen=None, maxLen=None, text="该输入框", errStr=None, default=None):

@@ -75,7 +75,9 @@ $('#user_panel').ajaxForm({
 		}else{
 			var str = '';
 			for(var i=0;i<data.info.length;i++){
-				str += data.info[i].value + "\r\n";
+				$('input[name='+data.info[i].name+']').parent('span.textbox').addClass('textbox-invalid');
+				$('input[name='+data.info[i].name+']').siblings('input.textbox-text').addClass('validatebox-invalid');
+				str += data.info[i].msg + "\r\n";
 			}
 			alert(str);
 		}
