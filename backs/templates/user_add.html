@@ -9,12 +9,12 @@
 				</tr>
 				<tr>
 					<td>密码:</td>
-					<td><label><input class="easyui-textbox" type="password" id="pwd" name="password"></input> 不修改密码时留空</label></td>
+					<td><label><input class="easyui-textbox" type="password" id="pwd" name="password"{% if not data %} required="required"{% endif %} validType="inrpwd['#rpwd']"></input> 不修改密码时留空</label></td>
 				</tr>
 				<tr>
 					<td>重复密码:</td>
 					<td>
-						<input class="easyui-textbox" type="password" name="rpwd" validType="equals['#pwd']">
+						<input class="easyui-textbox" type="password" id="rpwd" name="rpwd"{% if not data %} required="required"{% endif %} validType="equals['#pwd']">
 					</td>
 				</tr>
 				<tr>
@@ -51,6 +51,15 @@
 						</select>
 					</td>
 				</tr>
+				<tr>
+					<td>锁定:</td>
+					<td>
+						<select class="easyui-combobox" name="islock" dataoptions="" data-options="panelHeight:'auto',required:true">
+							<option value="0">否</option>
+							<option value="1">是</option>
+						</select>
+					</td>
+				</tr>
 			</table>
 			{% if data %}
 			<input type="hidden" name="id" value="{{ data.id }}" />
@@ -58,12 +67,12 @@
 		</form>
 		<div style="text-align:center;padding:5px">
 			<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitForm()">&nbsp;保&nbsp;存&nbsp;</a>&nbsp;&nbsp;
-			<a href="javascript:void(0)" class="easyui-linkbutton" onclick="clearForm()">&nbsp;取&nbsp;消&nbsp;</a>
+			<a href="javascript:void(0)" class="easyui-linkbutton" onclick="clearForm()">&nbsp;清&nbsp;空&nbsp;</a>
 		</div>
 	</div>
 </div>
 <div id="add_user_panel_tool">
-	<a href="javascript:void(0)" class="icon-save" onclick="javascript:alert('save')" title="保存"></a>
+	<a href="javascript:void(0)" class="icon-save" onclick="javascript:$('#user_panel').submit();return false;" title="保存"></a>
 </div>
 <script type="text/javascript">
 $('#user_panel').ajaxForm({
@@ -103,15 +112,6 @@ function submitForm(){
 function clearForm(){
 	$('#user_panel').form('clear');
 }
-//密码匹配
-$.extend($.fn.validatebox.defaults.rules, {
-    equals: {
-        validator: function(value, param) {
-            return value == $(param[0]).val();
-        },
-        message: '重复密码不一致'
-    }
-});
 {% if data %}
 $('#user_panel').form('load', {
 	account : '{{ data.account }}',
@@ -121,6 +121,7 @@ $('#user_panel').form('load', {
 	phone : '{{ data.phone }}',
 	gender : '{{ data.gender }}',
 	role : '{{ data.role }}',
+	islock : '{{ data.islock }}',
 });
 {% endif %}
 </script>

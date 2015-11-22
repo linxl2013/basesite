@@ -120,7 +120,8 @@ class user_add(View):
         form.post("nickname")
         form.post("email", text="电子邮件", required=True, validType="email")
         form.post("phone", text="手机号码", required=True, validType="mobile")
-        form.post("gender")
+        form.post("gender", required=True)
+        form.post("islock", required=True)
         (ret, data) = form.check()
 
         if ret == 1:
@@ -139,8 +140,8 @@ class user_add(View):
         password = make_password(data["password"])
 
         try:
-            a = Account(role=data["role"], account=data["account"], password=password, realname=data["realname"], nickname=data[
-                        "nickname"], email=data["email"], phone=data["phone"], gender=data["gender"], joined=joined, visits=0, locked=locked)
+            a = Account(role=data["role"], account=data["account"], password=password, realname=data["realname"], nickname=data["nickname"], email=data[
+                        "email"], phone=data["phone"], gender=data["gender"], visits=0, joined=joined, locked=locked, islock=data["islock"])
             a.save()
             userid = a.id
             json_data = Json.encode({'error': 0, 'id': userid})
@@ -184,7 +185,8 @@ class user_edit(View):
         form.post("nickname")
         form.post("email", text="电子邮件", required=True, validType="email")
         form.post("phone", text="手机号码", required=True, validType="mobile")
-        form.post("gender")
+        form.post("gender", required=True)
+        form.post("islock", required=True)
         (ret, data) = form.check()
 
         if ret == 1:
@@ -206,6 +208,9 @@ class user_edit(View):
             a.gender = data["gender"]
             if data["password"] != None and data["password"] != "":
                 a.password = make_password(data["password"])
+            a.islock = data["islock"]
+            if data["islock"] == "1":
+                a.locked = datetime.now()
             a.save()
             json_data = Json.encode({'error': 0, 'id': id})
             return HttpResponse(json_data, content_type='application/json')
