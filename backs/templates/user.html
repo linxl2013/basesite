@@ -15,31 +15,38 @@
         border: false,
         pageSize: 20,
         toolbar: [{
-            text:'新增用户',
-            iconCls:'icon-add',
-            handler:function(){
+            text: '新增用户',
+            iconCls: 'icon-add',
+            handler: function(){
                 addFrom('新增用户', '/admin/user/add')
             }
-        },'-',{
-            text:'编辑',
-            iconCls:'icon-edit',
-            handler:function(){alert('edit')}
-        },{
-            text:'删除',
-            iconCls:'icon-remove',
-            handler:function(){alert('delete')}
+        }, '-', {
+            text: '编辑',
+            iconCls: 'icon-edit',
+            handler: function(){alert('edit')}
+        }, {
+            text: '删除',
+            iconCls: 'icon-remove',
+            handler: function(){alert('delete')}
         }],
         columns:[[
-            {field:'id',title:'ID',width:100},
-            {field:'account',title:'帐号',width:100},
-            {field:'realname',title:'真实姓名',width:100},
-            {field:'realname',title:'昵称',width:100},
-            {field:'email',title:'电子邮件',width:100},
-            {field:'phone',title:'手机',width:100},
-            {field:'gender',title:'性别',width:100},
-            {field:'visits',title:'访问次数',width:100},
-            {field:'joined',title:'加入时间',width:100},
-            {field:'locked',title:'锁定时间',width:100},
+            {field: 'id', title: 'ID', width: 100},
+            {field: 'account', title: '帐号', width: 100},
+            {field: 'realname', title: '真实姓名', width: 100},
+            {field: 'realname', title: '昵称', width: 100},
+            {field: 'email', title: '电子邮件', width: 100},
+            {field: 'phone', title: '手机', width: 100},
+            {field: 'gender', title: '性别', width: 100},
+            {field: 'visits', title: '访问次数', width: 100},
+            {field: 'joined', title: '加入时间', width: 130},
+            {field: 'locked', title: '锁定时间', width: 130,
+                formatter: function(value, data) {
+                    if (data.islock == 0) {
+                        return '未锁定';
+                    } else {
+                        return value;
+                    }
+            }},
         ]],
         pagination: true,
         fitColumns: false,

@@ -6,11 +6,9 @@ from django.contrib.auth.hashers import make_password
 from django.db import connection, transaction
 from backs.models import *
 from backs.LoginBackend import *
-from backs.GetForm import *
+from mysite2.GetForm import *
+from mysite2.utils import *
 from functools import wraps
-from datetime import *
-import json
-# import time
 
 
 @authenticated
@@ -77,6 +75,7 @@ def user_list(request):
     sql = '''
     select id, account, realname, nickname, email, phone, gender, visits, joined, locked, islock 
     from backs_account 
+    where deleted = 0 
     limit %s, %s
     ''' % ((int(page) - 1) * int(count), count)
 
@@ -96,14 +95,14 @@ def user_list(request):
         dic["gender"] = obj[6]
         dic["visits"] = obj[7]
         dic["joined"] = obj[8]
+        # print type(obj[8])
         dic["locked"] = obj[9]
+        dic["islock"] = obj[10]
         rows.append(dic)
 
     data = {'total': total, 'rows': rows}
 
-    def date_handler(obj):
-        return obj.isoformat() if hasattr(obj, 'isoformat') else obj
-    return HttpResponse(json.dumps(data, default=date_handler))
+    return HttpResponse(Json.encode(data), content_type='application/json')
 
 
 class user_add(View):
@@ -126,7 +125,7 @@ class user_add(View):
         (ret, data) = form.check()
 
         if ret == 1:
-            json_data = json.dumps({'error': ret, 'info': data})
+            json_data = Json.encode({'error': ret, 'info': data})
             return HttpResponse(json_data, content_type='application/json')
 
         joined = datetime.now()
@@ -139,7 +138,7 @@ class user_add(View):
                     "nickname"], email=data["email"], phone=data["phone"], gender=data["gender"], joined=joined, visits=0, locked=locked)
         a.save()
         userid = a.id
-        json_data = json.dumps({'error': 0, 'id': userid})
+        json_data = Json.encode({'error': 0, 'id': userid})
         return HttpResponse(json_data, content_type='application/json')
 
 
