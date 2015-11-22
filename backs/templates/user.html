@@ -14,6 +14,7 @@
         // },
         border: false,
         pageSize: 20,
+        rownumbers: true,
         toolbar: [{
             text: '新增用户',
             iconCls: 'icon-add',
@@ -23,17 +24,51 @@
         }, '-', {
             text: '编辑',
             iconCls: 'icon-edit',
-            handler: function(){alert('edit')}
+            handler: function() {
+                var rows = $('#user_list').datagrid('getSelections');
+                if (rows.length ==0 || rows.length > 1) {
+                    alert('请选择一个项目进行编辑');
+                    return false;
+                }
+                var row = rows[0];
+                if (row) {
+                    addFrom('编辑用户', '/admin/user/edit?id=' + row.id);
+                }
+            }
         }, {
             text: '删除',
             iconCls: 'icon-remove',
-            handler: function(){alert('delete')}
+            handler: function() {
+                var ids = [];
+                var rows = $('#user_list').datagrid('getSelections');
+                if (rows.length == 0) {
+                    alert('请选择删除项目');
+                    return false;
+                }
+                if (!confirm('确定要删除项目吗？')) return false;
+                for (var i = 0; i < rows.length; i++) {
+                    ids.push(rows[i].id);
+                }
+                $.ajax({
+                    type: 'POST',
+                    url: '/admin/user/del',
+                    data: {id: ids.join(',')},
+                    dataType: 'json',
+                    success:function(data){
+                        if(data.error == 0){
+                            $('#user_list').datagrid('reload');
+                        }else{
+                            alert(str);
+                        }
+                    }
+                });
+            }
         }],
         columns:[[
             {field: 'id', title: 'ID', width: 100},
             {field: 'account', title: '帐号', width: 100},
             {field: 'realname', title: '真实姓名', width: 100},
-            {field: 'realname', title: '昵称', width: 100},
+            {field: 'nickname', title: '昵称', width: 100},
             {field: 'email', title: '电子邮件', width: 100},
             {field: 'phone', title: '手机', width: 100},
             {field: 'gender', title: '性别', width: 100},

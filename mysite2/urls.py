@@ -37,7 +37,7 @@ urlpatterns = [
     url(r'^admin/user/$', 'backs.views.user', name='user'),
     url(r'^admin/user/list$', 'backs.views.user_list', name='user_list'),
     url(r'^admin/user/add$', user_add.as_view(), name='user_add'),
-    url(r'^admin/user/edit$', 'backs.views.user_edit', name='user_edit'),
+    url(r'^admin/user/edit$', user_edit.as_view(), name='user_edit'),
     url(r'^admin/user/del$', 'backs.views.user_del', name='user_del'),
 
 ]

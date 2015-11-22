@@ -67,15 +67,15 @@ def user(request):
 
 @authenticated
 def user_list(request):
-    total = Account.objects.count()
+    total = Account.objects.filter(deleted=0).count()
 
     page = request.POST.get('page')
     count = request.POST.get('rows')
 
     sql = '''
-    select id, account, realname, nickname, email, phone, gender, visits, joined, locked, islock 
-    from backs_account 
-    where deleted = 0 
+    select id, account, realname, nickname, email, phone, gender, visits, joined, locked, islock
+    from backs_account
+    where deleted = 0
     limit %s, %s
     ''' % ((int(page) - 1) * int(count), count)
 
@@ -95,13 +95,11 @@ def user_list(request):
         dic["gender"] = obj[6]
         dic["visits"] = obj[7]
         dic["joined"] = obj[8]
-        # print type(obj[8])
         dic["locked"] = obj[9]
         dic["islock"] = obj[10]
         rows.append(dic)
 
     data = {'total': total, 'rows': rows}
-
     return HttpResponse(Json.encode(data), content_type='application/json')
 
 
@@ -109,7 +107,7 @@ class user_add(View):
 
     @authenticated
     def get(self, request):
-        return render(request, 'user_add.html', {'title': '新增用户'})
+        return render(request, 'user_add.html', {'title': '新增用户', 'url': '/admin/user/add'})
 
     @authenticated
     def post(self, request):
@@ -117,6 +115,7 @@ class user_add(View):
         form.post("role", required=True)
         form.post("account", text="用户名", required=True)
         form.post("password", text="密码", required=True)
+        form.post("rpwd", text="重复密码")
         form.post("realname")
         form.post("nickname")
         form.post("email", text="电子邮件", required=True, validType="email")
@@ -128,28 +127,109 @@ class user_add(View):
             json_data = Json.encode({'error': ret, 'info': data})
             return HttpResponse(json_data, content_type='application/json')
 
+        if data["rpwd"] != data["password"]:
+            json_data = Json.encode(
+                {'error': 1, 'info': [{'name': 'rpwd', 'msg': '重复密码不一致'}]})
+            return HttpResponse(json_data, content_type='application/json')
+
         joined = datetime.now()
         locked = datetime.now()
         visits = 0
 
         password = make_password(data["password"])
 
-        a = Account(role=data["role"], account=data["account"], password=password, realname=data["realname"], nickname=data[
-                    "nickname"], email=data["email"], phone=data["phone"], gender=data["gender"], joined=joined, visits=0, locked=locked)
-        a.save()
-        userid = a.id
-        json_data = Json.encode({'error': 0, 'id': userid})
-        return HttpResponse(json_data, content_type='application/json')
+        try:
+            a = Account(role=data["role"], account=data["account"], password=password, realname=data["realname"], nickname=data[
+                        "nickname"], email=data["email"], phone=data["phone"], gender=data["gender"], joined=joined, visits=0, locked=locked)
+            a.save()
+            userid = a.id
+            json_data = Json.encode({'error': 0, 'id': userid})
+            return HttpResponse(json_data, content_type='application/json')
+        except Exception, e:
+            print e
+            json_data = Json.encode(
+                {'error': 1, 'info': [{'name': '', 'msg': '数据更新错误'}]})
+            return HttpResponse(json_data, content_type='application/json')
 
 
-@authenticated
-def user_edit(request):
-    return HttpResponse("")
+class user_edit(View):
+
+    @authenticated
+    def get(self, request):
+        id = request.GET.get("id")
+        a = Account.objects.get(id=id)
+        dic = {}
+        dic["id"] = a.id
+        dic["account"] = a.account
+        dic["realname"] = a.realname
+        dic["nickname"] = a.nickname
+        dic["email"] = a.email
+        dic["phone"] = a.phone
+        dic["gender"] = a.gender
+        dic["visits"] = a.visits
+        dic["islock"] = a.islock
+        dic["role"] = a.role
+        return render(request, 'user_add.html', {'title': '编辑用户', 'url': '/admin/user/edit', 'data': dic})
+
+    @authenticated
+    def post(self, request):
+        id = request.POST.get("id")
+
+        form = GetForm(request)
+        form.post("role", required=True)
+        form.post("account", text="用户名", required=True)
+        form.post("password", text="密码")
+        form.post("rpwd", text="重复密码")
+        form.post("realname")
+        form.post("nickname")
+        form.post("email", text="电子邮件", required=True, validType="email")
+        form.post("phone", text="手机号码", required=True, validType="mobile")
+        form.post("gender")
+        (ret, data) = form.check()
+
+        if ret == 1:
+            json_data = Json.encode({'error': ret, 'info': data})
+            return HttpResponse(json_data, content_type='application/json')
+
+        if data["rpwd"] != data["password"]:
+            json_data = Json.encode(
+                {'error': 1, 'info': [{'name': 'rpwd', 'msg': '重复密码不一致'}]})
+            return HttpResponse(json_data, content_type='application/json')
+
+        try:
+            a = Account.objects.get(id=id)
+            a.role = data["role"]
+            a.realname = data["realname"]
+            a.nickname = data["nickname"]
+            a.email = data["email"]
+            a.phone = data["phone"]
+            a.gender = data["gender"]
+            if data["password"] != None and data["password"] != "":
+                a.password = make_password(data["password"])
+            a.save()
+            json_data = Json.encode({'error': 0, 'id': id})
+            return HttpResponse(json_data, content_type='application/json')
+        except Exception, e:
+            print e
+            json_data = Json.encode(
+                {'error': 1, 'info': [{'name': '', 'msg': '数据更新错误'}]})
+            return HttpResponse(json_data, content_type='application/json')
 
 
 @authenticated
 def user_del(request):
-    return HttpResponse("")
+    id = request.POST.get("id")
+    id = id.split(",")
+
+    try:
+        Account.objects.filter(id__in=id).update(deleted=1)
+        json_data = Json.encode({'error': 0, 'id': id})
+        return HttpResponse(json_data, content_type='application/json')
+    except Exception, e:
+        print e
+        json_data = Json.encode(
+            {'error': 1, 'info': [{'name': '', 'msg': '数据更新错误'}]})
+        return HttpResponse(json_data, content_type='application/json')
 
 
 def add(request):

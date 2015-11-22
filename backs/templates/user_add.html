@@ -1,7 +1,7 @@
 <div id="add_user_panel" class="easyui-panel" title="{{ title }}" style="width:100%" data-options="fit:true,tools:'#add_user_panel_tool'">
 	<div style="padding:10px 60px 20px 60px">
 		<!-- <a href="#" id="btn_save" class="easyui-linkbutton" data-options="iconCls:'icon-save'">Save</a> -->
-		<form id="user_panel" method="post" action="/admin/user/add" data-options="novalidate:true">
+		<form id="user_panel" method="post" action="{{ url }}" data-options="novalidate:true">
 			<table cellpadding="5">
 				<tr>
 					<td>用户名:</td>
@@ -9,12 +9,12 @@
 				</tr>
 				<tr>
 					<td>密码:</td>
-					<td><label><input class="easyui-textbox" type="password" name="password"></input> 不修改密码时留空</label></td>
+					<td><label><input class="easyui-textbox" type="password" id="pwd" name="password"></input> 不修改密码时留空</label></td>
 				</tr>
 				<tr>
 					<td>重复密码:</td>
 					<td>
-						<input class="easyui-textbox" type="password" name="rpwd" data-options="">
+						<input class="easyui-textbox" type="password" name="rpwd" validType="equals['#pwd']">
 					</td>
 				</tr>
 				<tr>
@@ -36,7 +36,7 @@
 				<tr>
 					<td>性别:</td>
 					<td>
-						<select class="easyui-combobox" name="gender" dataoptions="panelHeight:'auto'">
+						<select class="easyui-combobox" name="gender" dataoptions="" data-options="panelHeight:'auto',required:true">
 							<option value="m">男</option>
 							<option value="f">女</option>
 						</select>
@@ -45,13 +45,16 @@
 				<tr>
 					<td>用户组:</td>
 					<td>
-						<select class="easyui-combobox" name="role" dataoptions="panelHeight:'auto'">
+						<select class="easyui-combobox" name="role" data-options="panelHeight:'auto',required:true">
 							<option value="1">管理员</option>
 							<option value="2">用户</option>
 						</select>
 					</td>
 				</tr>
 			</table>
+			{% if data %}
+			<input type="hidden" name="id" value="{{ data.id }}" />
+			{% endif %}
 		</form>
 		<div style="text-align:center;padding:5px">
 			<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitForm()">&nbsp;保&nbsp;存&nbsp;</a>&nbsp;&nbsp;
@@ -75,8 +78,19 @@ $('#user_panel').ajaxForm({
 		}else{
 			var str = '';
 			for(var i=0;i<data.info.length;i++){
-				$('input[name='+data.info[i].name+']').parent('span.textbox').addClass('textbox-invalid');
-				$('input[name='+data.info[i].name+']').siblings('input.textbox-text').addClass('validatebox-invalid');
+				if(data.info[i].name != '') {
+					$('input[name='+data.info[i].name+']').parent('span.textbox').addClass('textbox-invalid');
+					$('input[name='+data.info[i].name+']').parent('span.textbox').siblings('.easyui-textbox');
+					$('input[name='+data.info[i].name+']').siblings('input.textbox-text').addClass('validatebox-invalid');
+
+					var d = $.data($('input[name='+data.info[i].name+']').siblings('input.textbox-text')[0], 'validatebox');
+					// console.log(d);
+					d.options.invalidMessage = d.options.missingMessage;
+					d.options.missingMessage = data.info[i].msg;
+					d.message = data.info[i].msg;
+					$('input[name='+data.info[i].name+']').siblings('input.textbox-text').data('validatebox', d);
+					// console.log(d);
+				}
 				str += data.info[i].msg + "\r\n";
 			}
 			alert(str);
@@ -89,4 +103,24 @@ function submitForm(){
 function clearForm(){
 	$('#user_panel').form('clear');
 }
+//密码匹配
+$.extend($.fn.validatebox.defaults.rules, {
+    equals: {
+        validator: function(value, param) {
+            return value == $(param[0]).val();
+        },
+        message: '重复密码不一致'
+    }
+});
+{% if data %}
+$('#user_panel').form('load', {
+	account : '{{ data.account }}',
+	realname : '{{ data.realname }}',
+	nickname : '{{ data.nickname }}',
+	email : '{{ data.email }}',
+	phone : '{{ data.phone }}',
+	gender : '{{ data.gender }}',
+	role : '{{ data.role }}',
+});
+{% endif %}
 </script>

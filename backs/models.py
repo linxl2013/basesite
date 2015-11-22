@@ -1,5 +1,6 @@
 # coding:utf-8
 from django.db import models
+from datetime import date, datetime
 from django.contrib.auth.hashers import make_password, check_password
 import re
 
@@ -75,11 +76,12 @@ class Account(models.Model):
 
     def get_dic(self):
         dic = self.__dict__
-        del dic['_state']
-        dic['joined'] = dic['joined'] != None and dic[
-            'joined'].strftime('%Y-%m-%d') or ''
-        dic['locked'] = dic['locked'] != None and dic[
-            'locked'].strftime('%Y-%m-%d') or ''
+        if dic.has_key('_state'):
+            del dic['_state']
+        dic['joined'] = isinstance(dic['joined'], datetime) and dic[
+            'joined'].strftime('%Y-%m-%d %H:%M:%S') or dic['joined']
+        dic['locked'] = isinstance(dic['locked'], datetime) and dic[
+            'locked'].strftime('%Y-%m-%d %H:%M:%S') or dic['locked']
         return dic
 
 
