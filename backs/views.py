@@ -13,28 +13,45 @@ from functools import wraps
 
 @authenticated
 def index(request):
-    # m = Menu.objects.all()
-    # m_list = {}
-    # for obj in m:
-    #     m_list[obj.id] = obj
+    menus = Menu.objects.all()
 
-    # menu = {}
-    # parent = {}
-    node = {}
-    # for obj in m:
-    #     if not parent.has_key(obj.parentid):
-    #         parent[obj.parentid] = []
-    #     node = {}
-    #     node["id"] = obj.id
-    #     node["parentid"] = obj.parentid
-    #     node["menuname"] = obj.menuname
-    #     node["menuurl"] = obj.menuurl
-    #     node["menuorder"] = obj.menuorder
-    #     parent[obj.parentid].append(node)
-    
-    # print parent
+    def gettree(nodes):
+        def getchildren(parentid):
+            child_nodes = []
+            for obj in nodes:
+                if obj.parentid == parentid:
+                    obj.children = getchildren(obj.id)
+                    child_nodes.append(obj)
+            sorted_nodes = sorted(child_nodes, key=lambda elem: "%s" %
+                                  elem.menuorder, reverse=False)
+            return sorted_nodes
+        return getchildren(0)
 
-    return render(request, 'base.html', {"node": node})
+    menu_tree = gettree(menus)
+
+    def treenode(node):
+        html = ""
+        if node.children:
+            html = html + "<ul>"
+            for child in node.children:
+                options = child.menuurl and " data-options=\"attributes:{'url':'" + \
+                    child.menuurl + "'}\"" or ""
+                html = html + "<li" + options + ">"
+                html = html + "<span>" + child.menuname + "</span>"
+                html = html + treenode(child)
+                html = html + "</li>"
+            html = html + "</ul>"
+        return html
+
+    html = ""
+    for obj in menu_tree:
+        html = html + "<li>"
+        html = html + "<span>" + obj.menuname + "</span>"
+        html = html + treenode(obj)
+        html = html + "</li>"
+    # print html
+
+    return render(request, 'base.html', {"menu_tree": html})
 
 
 @authenticated
