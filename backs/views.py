@@ -13,12 +13,28 @@ from functools import wraps
 
 @authenticated
 def index(request):
-    return render(request, 'base.html')
+    # m = Menu.objects.all()
+    # m_list = {}
+    # for obj in m:
+    #     m_list[obj.id] = obj
 
+    # menu = {}
+    # parent = {}
+    node = {}
+    # for obj in m:
+    #     if not parent.has_key(obj.parentid):
+    #         parent[obj.parentid] = []
+    #     node = {}
+    #     node["id"] = obj.id
+    #     node["parentid"] = obj.parentid
+    #     node["menuname"] = obj.menuname
+    #     node["menuurl"] = obj.menuurl
+    #     node["menuorder"] = obj.menuorder
+    #     parent[obj.parentid].append(node)
+    
+    # print parent
 
-@authenticated
-def menu(request):
-    return render(request, 'menu.html')
+    return render(request, 'base.html', {"node": node})
 
 
 @authenticated
