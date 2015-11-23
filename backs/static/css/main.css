@@ -141,3 +141,12 @@ textarea.html,textarea.js{
 .icon-gears{
 	background:url('images/gears.png') no-repeat;
 }
+
+.tabs-panels .panel-header{
+	border-top: none;
+	border-left: none;
+	border-right: none;
+}
+.tab-main-panel{
+	border: none;
+}

@@ -1,3 +1,4 @@
+# coding:utf-8
 """
 Django settings for mysite2 project.
 
@@ -119,3 +120,6 @@ PASSWORD_HASHERS = (
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
     'django.contrib.auth.hashers.SHA1PasswordHasher',
 )
+
+# session在关闭浏览器就过期
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = True
