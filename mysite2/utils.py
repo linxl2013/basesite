@@ -40,5 +40,7 @@ class TypeEncoder(json.JSONEncoder):
             return obj.strftime('%Y-%m-%d')
         elif isinstance(obj, Decimal):
             return float(obj)
+        elif isinstance(obj, unicode):
+            return obj.encode("utf-8")
         else:
             return json.JSONEncoder.default(self, obj)

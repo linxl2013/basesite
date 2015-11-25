@@ -113,15 +113,6 @@ function clearForm(){
 	$('#user_panel').form('clear');
 }
 {% if data %}
-$('#user_panel').form('load', {
-	account : '{{ data.account }}',
-	realname : '{{ data.realname }}',
-	nickname : '{{ data.nickname }}',
-	email : '{{ data.email }}',
-	phone : '{{ data.phone }}',
-	gender : '{{ data.gender }}',
-	role : '{{ data.role }}',
-	islock : '{{ data.islock }}',
-});
+$('#user_panel').form('load', {{ data|safe }});
 {% endif %}
 </script>

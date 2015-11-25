@@ -1,0 +1,73 @@
+<div id="add_group_panel" class="easyui-panel tab-main-panel" title="{{ title }}" style="width:100%" data-options="fit:true,tools:'#add_group_panel_tool'">
+	<div style="padding:10px 60px 20px 60px">
+		<!-- <a href="#" id="btn_save" class="easyui-linkbutton" data-options="iconCls:'icon-save'">Save</a> -->
+		<form id="group_panel" method="post" action="{{ url }}" data-options="novalidate:true">
+			<table cellpadding="5">
+				<tr>
+					<td>用户组名:</td>
+					<td><input class="easyui-textbox" type="text" name="name" data-options="required:true"></input></td>
+				</tr>
+				<tr>
+					<td>代码:</td>
+					<td><input class="easyui-textbox" type="text" name="role"></input></td>
+				</tr>
+				<tr>
+					<td>描述:</td>
+					<td><textarea class="easyui-textbox" name="desc" style="height:70px;" data-options="multiline:true"></textarea></td>
+				</tr>
+			</table>
+			{% if data %}
+			<input type="hidden" name="id" value="{{ data.id }}" />
+			{% endif %}
+		</form>
+		<div style="text-align:center;padding:5px">
+			<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitForm()">&nbsp;保&nbsp;存&nbsp;</a>&nbsp;&nbsp;
+			<a href="javascript:void(0)" class="easyui-linkbutton" onclick="clearForm()">&nbsp;清&nbsp;空&nbsp;</a>
+		</div>
+	</div>
+</div>
+<div id="add_group_panel_tool">
+	<a href="javascript:void(0)" class="icon-save" onclick="javascript:$('#group_panel').submit();return false;" title="保存"></a>
+</div>
+<script type="text/javascript">
+$('#group_panel').ajaxForm({
+	dataType: 'json',
+	beforeSend:function(){
+		return $('#group_panel').form('enableValidation').form('validate');
+	},
+	success:function(data){
+		if(data.error == 0){
+			$('#tt').tabs('close', '{{ title }}');
+			$('#group_list').datagrid('reload');
+		}else{
+			var str = '';
+			for(var i=0;i<data.info.length;i++){
+				if(data.info[i].name != '') {
+					$('input[name='+data.info[i].name+']').parent('span.textbox').addClass('textbox-invalid');
+					$('input[name='+data.info[i].name+']').parent('span.textbox').siblings('.easyui-textbox');
+					$('input[name='+data.info[i].name+']').siblings('input.textbox-text').addClass('validatebox-invalid');
+
+					var d = $.data($('input[name='+data.info[i].name+']').siblings('input.textbox-text')[0], 'validatebox');
+					// console.log(d);
+					d.options.invalidMessage = d.options.missingMessage;
+					d.options.missingMessage = data.info[i].msg;
+					d.message = data.info[i].msg;
+					$('input[name='+data.info[i].name+']').siblings('input.textbox-text').data('validatebox', d);
+					// console.log(d);
+				}
+				str += data.info[i].msg + "\r\n";
+			}
+			alert(str);
+		}
+	}
+});
+function submitForm(){
+	$('#group_panel').submit();
+}
+function clearForm(){
+	$('#group_panel').form('clear');
+}
+{% if data %}
+$('#group_panel').form('load', {{ data|safe }});
+{% endif %}
+</script>

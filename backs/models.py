@@ -91,6 +91,12 @@ class Group(models.Model):
     desc = models.CharField(max_length=255)
     acl = models.TextField()
 
+    def get_dic(self):
+        dic = self.__dict__
+        if dic.has_key('_state'):
+            del dic['_state']
+        return dic
+
 
 class Grouppriv(models.Model):
     groupid = models.IntegerField()

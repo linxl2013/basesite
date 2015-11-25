@@ -1,3 +1,4 @@
+# coding:utf-8
 """mysite2 URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
@@ -37,7 +38,14 @@ urlpatterns = [
     url(r'^admin/user/$', 'backs.views.user', name='user'),
     url(r'^admin/user/list$', 'backs.views.user_list', name='user_list'),
     url(r'^admin/user/add$', user_add.as_view(), name='user_add'),
+    url(r'^admin/user/edit/(\d+)$', user_edit.as_view(), name='user_edit'),
     url(r'^admin/user/edit$', user_edit.as_view(), name='user_edit'),
     url(r'^admin/user/del$', 'backs.views.user_del', name='user_del'),
 
+    url(r'^admin/group$', 'backs.views.group', name='group'),
+    url(r'^admin/group/list$', 'backs.views.group_list', name='group_list'),
+    url(r'^admin/group/add$', group_add.as_view(), name='group_add'),
+    url(r'^admin/group/edit/(\d+)$', group_edit.as_view(), name='group_edit'),
+    url(r'^admin/group/edit$', group_edit.as_view(), name='group_edit'),
+    url(r'^admin/group/del$', 'backs.views.group_del', name='group_del'),
 ]

@@ -1,7 +1,7 @@
-	<table id="user_list"></table>
+	<table id="group_list"></table>
 <script type="text/javascript">
-    $('#user_list').datagrid({
-        url:'/admin/user/list',
+    $('#group_list').datagrid({
+        url:'/admin/group/list',
         queryParams: {
             data: true,
         },
@@ -9,23 +9,23 @@
         pageSize: 20,
         rownumbers: true,
         toolbar: [{
-            text: '新增用户',
+            text: '新增用户组',
             iconCls: 'icon-add',
             handler: function(){
-                addFrom('新增用户', '/admin/user/add')
+                addFrom('新增用户组', '/admin/group/add')
             }
         }, '-', {
             text: '编辑',
             iconCls: 'icon-edit',
             handler: function() {
-                var rows = $('#user_list').datagrid('getSelections');
+                var rows = $('#group_list').datagrid('getSelections');
                 if (rows.length ==0 || rows.length > 1) {
                     alert('请选择一个项目进行编辑');
                     return false;
                 }
                 var row = rows[0];
                 if (row) {
-                    addFrom('编辑用户', '/admin/user/edit/' + row.id);
+                    addFrom('编辑用户组', '/admin/group/edit/' + row.id);
                 }
             }
         }, {
@@ -33,7 +33,7 @@
             iconCls: 'icon-remove',
             handler: function() {
                 var ids = [];
-                var rows = $('#user_list').datagrid('getSelections');
+                var rows = $('#group_list').datagrid('getSelections');
                 if (rows.length == 0) {
                     alert('请选择删除项目');
                     return false;
@@ -44,12 +44,12 @@
                 }
                 $.ajax({
                     type: 'POST',
-                    url: '/admin/user/del',
+                    url: '/admin/group/del',
                     data: {id: ids.join(',')},
                     dataType: 'json',
                     success:function(data){
                         if(data.error == 0){
-                            $('#user_list').datagrid('reload');
+                            $('#group_list').datagrid('reload');
                         }else{
                             alert(str);
                         }
@@ -59,22 +59,9 @@
         }],
         columns:[[
             {field: 'id', title: 'ID', width: 100},
-            {field: 'account', title: '帐号', width: 100},
-            {field: 'realname', title: '真实姓名', width: 100},
-            {field: 'nickname', title: '昵称', width: 100},
-            {field: 'email', title: '电子邮件', width: 100},
-            {field: 'phone', title: '手机', width: 100},
-            {field: 'gender', title: '性别', width: 100},
-            {field: 'visits', title: '访问次数', width: 100},
-            {field: 'joined', title: '加入时间', width: 130},
-            {field: 'locked', title: '锁定时间', width: 130,
-                formatter: function(value, data) {
-                    if (data.islock == 0) {
-                        return '未锁定';
-                    } else {
-                        return value;
-                    }
-            }},
+            {field: 'name', title: '用户组名', width: 120},
+            {field: 'role', title: '分组', width: 120},
+            {field: 'desc', title: '描述', width: 300},
         ]],
         pagination: true,
         fitColumns: false,

@@ -49,7 +49,6 @@ def index(request):
         html = html + "<span>" + obj.menuname + "</span>"
         html = html + treenode(obj)
         html = html + "</li>"
-    # print html
 
     return render(request, 'base.html', {"menu_tree": html})
 
@@ -189,21 +188,17 @@ class user_add(View):
 class user_edit(View):
 
     @authenticated
-    def get(self, request):
-        id = request.GET.get("id")
+    def get(self, request, id):
         a = Account.objects.get(id=id)
-        dic = {}
-        dic["id"] = a.id
-        dic["account"] = a.account
-        dic["realname"] = a.realname
-        dic["nickname"] = a.nickname
-        dic["email"] = a.email
-        dic["phone"] = a.phone
-        dic["gender"] = a.gender
-        dic["visits"] = a.visits
-        dic["islock"] = a.islock
-        dic["role"] = a.role
-        return render(request, 'user_add.html', {'title': '编辑用户', 'url': '/admin/user/edit', 'data': dic})
+        dic = a.get_dic()
+        del dic["password"]
+        del dic["visits"]
+        del dic["joined"]
+        del dic["locked"]
+        del dic["islock"]
+        del dic["deleted"]
+
+        return render(request, 'user_add.html', {'title': '编辑用户', 'url': '/admin/user/edit', 'data': Json.encode(dic)})
 
     @authenticated
     def post(self, request):
@@ -261,6 +256,124 @@ def user_del(request):
 
     try:
         Account.objects.filter(id__in=id).update(deleted=1)
+        json_data = Json.encode({'error': 0, 'id': id})
+        return HttpResponse(json_data, content_type='application/json')
+    except Exception, e:
+        print e
+        json_data = Json.encode(
+            {'error': 1, 'info': [{'name': '', 'msg': '数据更新错误'}]})
+        return HttpResponse(json_data, content_type='application/json')
+
+
+@authenticated
+def group(request):
+    return render(request, 'group.html')
+
+
+@authenticated
+def group_list(request):
+    total = Account.objects.count()
+
+    page = request.POST.get('page')
+    count = request.POST.get('rows')
+
+    sql = "select `id`, `name`, `role`, `desc` from backs_group limit %s, %s" % (
+        (int(page) - 1) * int(count), count)
+    cursor = connection.cursor()
+    cursor.execute(sql)
+    fetchall = cursor.fetchall()
+
+    rows = []
+    for obj in fetchall:
+        dic = {}
+        dic["id"] = obj[0]
+        dic["name"] = obj[1]
+        dic["role"] = obj[2]
+        dic["desc"] = obj[3]
+        rows.append(dic)
+
+    data = {'total': total, 'rows': rows}
+    return HttpResponse(Json.encode(data), content_type='application/json')
+
+
+class group_add(View):
+
+    @authenticated
+    def get(self, request):
+        return render(request, 'group_add.html', {'title': '新增用户组', 'url': '/admin/group/add'})
+
+    @authenticated
+    def post(self, request):
+        form = GetForm(request)
+        form.post("name", text="用户组名", required=True)
+        form.post("role")
+        form.post("desc")
+        (ret, data) = form.check()
+
+        if ret == 1:
+            json_data = Json.encode({'error': ret, 'info': data})
+            return HttpResponse(json_data, content_type='application/json')
+
+        try:
+            g = Group(role=data["role"], name=data[
+                      "name"], desc=data["desc"], acl="")
+            g.save()
+            groupid = g.id
+            json_data = Json.encode({'error': 0, 'id': groupid})
+            return HttpResponse(json_data, content_type='application/json')
+        except Exception, e:
+            print e
+            json_data = Json.encode(
+                {'error': 1, 'info': [{'name': '', 'msg': '数据更新错误'}]})
+            return HttpResponse(json_data, content_type='application/json')
+
+
+class group_edit(View):
+
+    @authenticated
+    def get(self, request, id):
+        g = Group.objects.get(id=id)
+        dic = g.get_dic()
+        del dic["acl"]
+
+        return render(request, 'group_add.html', {'title': '编辑用户组', 'url': '/admin/group/edit', 'data': Json.encode(dic)})
+
+    @authenticated
+    def post(self, request):
+        id = request.POST.get("id")
+
+        form = GetForm(request)
+        form.post("name", text="用户组名", required=True)
+        form.post("role")
+        form.post("desc")
+        (ret, data) = form.check()
+
+        if ret == 1:
+            json_data = Json.encode({'error': ret, 'info': data})
+            return HttpResponse(json_data, content_type='application/json')
+
+        try:
+            g = Group.objects.get(id=id)
+            g.name = data["name"]
+            g.role = data["role"]
+            g.desc = data["desc"]
+            g.save()
+            json_data = Json.encode({'error': 0, 'id': id})
+            return HttpResponse(json_data, content_type='application/json')
+        except Exception, e:
+            print e
+            json_data = Json.encode(
+                {'error': 1, 'info': [{'name': '', 'msg': '数据更新错误'}]})
+            return HttpResponse(json_data, content_type='application/json')
+
+
+@authenticated
+def group_del(request):
+    id = request.POST.get("id")
+    id = id.split(",")
+
+    try:
+        Group.objects.filter(id__in=id).delete()
         json_data = Json.encode({'error': 0, 'id': id})
         return HttpResponse(json_data, content_type='application/json')
     except Exception, e:
