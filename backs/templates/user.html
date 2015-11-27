@@ -15,10 +15,9 @@
                 addFrom('新增用户', '/admin/user/add')
             }
         }, '-', {
-            id:'btn-edit',
+            id:'btn_user_edit',
             text: '编辑',
             iconCls: 'icon-edit',
-            disabled: true,
             handler: function() {
                 var row = $('#user_list').datagrid('getSelected');
                 if (row) {
@@ -26,10 +25,9 @@
                 }
             }
         }, {
-            id: 'btn-remove',
+            id: 'btn_user_remove',
             text: '删除',
             iconCls: 'icon-remove',
-            disabled: true,
             handler: function() {
                 if (!confirm('确定要删除项目吗？')) return false;
                 var ids = [];
@@ -79,19 +77,19 @@
         onClickRow: function(index, row) {
             var rows = $('#user_list').datagrid('getSelections');
             if (rows.length ==0 || rows.length > 1) {
-                $('#btn-edit').linkbutton('disable');
+                $('#btn_user_edit').linkbutton('disable');
             } else {
-                $('#btn-edit').linkbutton('enable');
+                $('#btn_user_edit').linkbutton('enable');
             }
             if (rows.length > 0) {
-                $('#btn-remove').linkbutton('enable');
+                $('#btn_user_remove').linkbutton('enable');
             } else {
-                $('#btn-remove').linkbutton('disable');
+                $('#btn_user_remove').linkbutton('disable');
             }
         },
         onLoadSuccess: function(data) {
-            $('#btn-edit').linkbutton('disable');
-            $('#btn-remove').linkbutton('disable');
+            $('#btn_user_edit').linkbutton('disable');
+            $('#btn_user_remove').linkbutton('disable');
         }
     });
 </script>

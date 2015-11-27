@@ -15,7 +15,7 @@
                 addFrom('新增用户组', '/admin/group/add')
             }
         }, '-', {
-            id: 'btn-edit',
+            id: 'btn_group_edit',
             text: '编辑',
             iconCls: 'icon-edit',
             handler: function() {
@@ -25,7 +25,7 @@
                 }
             }
         }, {
-            id: 'btn-remove',
+            id: 'btn_group_remove',
             text: '删除',
             iconCls: 'icon-remove',
             handler: function() {
@@ -56,7 +56,7 @@
                 });
             }
         }, '-', {
-            id: 'btn-priv',
+            id: 'btn_group_priv',
             text: '权限',
             iconCls: 'icon-filter',
             handler: function() {
@@ -78,26 +78,26 @@
         onClickRow: function(index, row) {
             var rows = $('#group_list').datagrid('getSelections');
             if (rows.length == 0 || rows.length > 1) {
-                $('#btn-edit').linkbutton('disable');
-                $('#btn-priv').linkbutton('disable');
+                $('#btn_group_edit').linkbutton('disable');
+                $('#btn_group_priv').linkbutton('disable');
             } else {
-                $('#btn-edit').linkbutton('enable');
-                $('#btn-priv').linkbutton('enable');
+                $('#btn_group_edit').linkbutton('enable');
+                $('#btn_group_priv').linkbutton('enable');
             }
             if (rows.length > 0) {
                 if (rows.length == 1 && rows[0].id == 1) {
-                    $('#btn-remove').linkbutton('disable');
+                    $('#btn_group_remove').linkbutton('disable');
                 } else {
-                    $('#btn-remove').linkbutton('enable');
+                    $('#btn_group_remove').linkbutton('enable');
                 }
             } else {
-                $('#btn-remove').linkbutton('disable');
+                $('#btn_group_remove').linkbutton('disable');
             }
         },
         onLoadSuccess: function(data) {
-            $('#btn-edit').linkbutton('disable');
-            $('#btn-remove').linkbutton('disable');
-            $('#btn-priv').linkbutton('disable');
+            $('#btn_group_edit').linkbutton('disable');
+            $('#btn_group_remove').linkbutton('disable');
+            $('#btn_group_priv').linkbutton('disable');
         }
     });
 </script>
