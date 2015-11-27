@@ -15,30 +15,26 @@
                 addFrom('新增用户', '/admin/user/add')
             }
         }, '-', {
+            id:'btn-edit',
             text: '编辑',
             iconCls: 'icon-edit',
+            disabled: true,
             handler: function() {
-                var rows = $('#user_list').datagrid('getSelections');
-                if (rows.length ==0 || rows.length > 1) {
-                    alert('请选择一个项目进行编辑');
-                    return false;
-                }
-                var row = rows[0];
+                var row = $('#user_list').datagrid('getSelected');
                 if (row) {
                     addFrom('编辑用户', '/admin/user/edit/' + row.id);
                 }
             }
         }, {
+            id: 'btn-remove',
             text: '删除',
             iconCls: 'icon-remove',
+            disabled: true,
             handler: function() {
+                if (!confirm('确定要删除项目吗？')) return false;
                 var ids = [];
                 var rows = $('#user_list').datagrid('getSelections');
-                if (rows.length == 0) {
-                    alert('请选择删除项目');
-                    return false;
-                }
-                if (!confirm('确定要删除项目吗？')) return false;
+                if (rows.length < 1) return false;
                 for (var i = 0; i < rows.length; i++) {
                     ids.push(rows[i].id);
                 }
@@ -49,6 +45,7 @@
                     dataType: 'json',
                     success:function(data){
                         if(data.error == 0){
+                            $('#tt').tabs('close', '编辑用户');
                             $('#user_list').datagrid('reload');
                         }else{
                             alert(str);
@@ -79,5 +76,22 @@
         pagination: true,
         fitColumns: false,
         fit: true,
+        onClickRow: function(index, row) {
+            var rows = $('#user_list').datagrid('getSelections');
+            if (rows.length ==0 || rows.length > 1) {
+                $('#btn-edit').linkbutton('disable');
+            } else {
+                $('#btn-edit').linkbutton('enable');
+            }
+            if (rows.length > 0) {
+                $('#btn-remove').linkbutton('enable');
+            } else {
+                $('#btn-remove').linkbutton('disable');
+            }
+        },
+        onLoadSuccess: function(data) {
+            $('#btn-edit').linkbutton('disable');
+            $('#btn-remove').linkbutton('disable');
+        }
     });
 </script>

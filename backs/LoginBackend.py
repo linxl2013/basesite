@@ -2,6 +2,7 @@
 
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
+from django.core.handlers.wsgi import WSGIRequest
 from functools import wraps
 from backs.models import Account
 from backs.models import Menu
@@ -10,10 +11,10 @@ from backs.models import Menu
 def authenticated(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        if len(args) == 1:
-            request = args[0]
-        else:
-            request = args[1]
+        for arg in args:
+            if isinstance(arg, WSGIRequest):
+                request = arg
+                break
         if request.session.get('user_id', None) == None:
             # 用户未登陆
             return HttpResponseRedirect('/admin/login')

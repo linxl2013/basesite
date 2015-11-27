@@ -383,6 +383,11 @@ def group_del(request):
         return HttpResponse(json_data, content_type='application/json')
 
 
+@authenticated
+def group_priv(request, id):
+    return HttpResponse("sss" + id)
+
+
 def add(request):
     a = request.GET['a']
     b = request.GET['b']

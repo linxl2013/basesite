@@ -15,33 +15,31 @@
                 addFrom('新增用户组', '/admin/group/add')
             }
         }, '-', {
+            id: 'btn-edit',
             text: '编辑',
             iconCls: 'icon-edit',
             handler: function() {
-                var rows = $('#group_list').datagrid('getSelections');
-                if (rows.length ==0 || rows.length > 1) {
-                    alert('请选择一个项目进行编辑');
-                    return false;
-                }
-                var row = rows[0];
+                var row = $('#group_list').datagrid('getSelected');
                 if (row) {
                     addFrom('编辑用户组', '/admin/group/edit/' + row.id);
                 }
             }
         }, {
+            id: 'btn-remove',
             text: '删除',
             iconCls: 'icon-remove',
             handler: function() {
                 var ids = [];
                 var rows = $('#group_list').datagrid('getSelections');
-                if (rows.length == 0) {
-                    alert('请选择删除项目');
-                    return false;
-                }
-                if (!confirm('确定要删除项目吗？')) return false;
+                if (rows.length < 1) return false;
                 for (var i = 0; i < rows.length; i++) {
+                    if (rows[i].id == 1) {
+                        alert('系统管理员将不被删除');
+                        continue;
+                    }
                     ids.push(rows[i].id);
                 }
+                if (!confirm('确定要删除项目吗？')) return false;
                 $.ajax({
                     type: 'POST',
                     url: '/admin/group/del',
@@ -49,12 +47,23 @@
                     dataType: 'json',
                     success:function(data){
                         if(data.error == 0){
+                            $('#tt').tabs('close', '编辑用户组');
                             $('#group_list').datagrid('reload');
                         }else{
                             alert(str);
                         }
                     }
                 });
+            }
+        }, '-', {
+            id: 'btn-priv',
+            text: '权限',
+            iconCls: 'icon-filter',
+            handler: function() {
+                var row = $('#group_list').datagrid('getSelected');
+                if (row) {
+                    addFrom('用户组权限', '/admin/group/priv/' + row.id);
+                }
             }
         }],
         columns:[[
@@ -66,5 +75,29 @@
         pagination: true,
         fitColumns: false,
         fit: true,
+        onClickRow: function(index, row) {
+            var rows = $('#group_list').datagrid('getSelections');
+            if (rows.length == 0 || rows.length > 1) {
+                $('#btn-edit').linkbutton('disable');
+                $('#btn-priv').linkbutton('disable');
+            } else {
+                $('#btn-edit').linkbutton('enable');
+                $('#btn-priv').linkbutton('enable');
+            }
+            if (rows.length > 0) {
+                if (rows.length == 1 && rows[0].id == 1) {
+                    $('#btn-remove').linkbutton('disable');
+                } else {
+                    $('#btn-remove').linkbutton('enable');
+                }
+            } else {
+                $('#btn-remove').linkbutton('disable');
+            }
+        },
+        onLoadSuccess: function(data) {
+            $('#btn-edit').linkbutton('disable');
+            $('#btn-remove').linkbutton('disable');
+            $('#btn-priv').linkbutton('disable');
+        }
     });
 </script>
