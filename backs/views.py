@@ -57,7 +57,7 @@ def index(request):
 def home(request):
     TutorialList = ["HTML", "CSS", "jQuery", "Python", "Django"]
     info_dict = {'site': u'自强学堂', 'content': u'各种IT技术教程'}
-    return render(request, 'home.html', {'TutorialList': TutorialList, 'info_dict': info_dict, 'text': request.user})
+    return render(request, 'home.html', {'TutorialList': TutorialList, 'info_dict': info_dict, 'text': request.user, 'title': 'sdsd'})
 
 
 class login(View):
@@ -383,9 +383,71 @@ def group_del(request):
         return HttpResponse(json_data, content_type='application/json')
 
 
-@authenticated
-def group_priv(request, id):
-    return HttpResponse("sss" + id)
+class group_priv(View):
+
+    @authenticated
+    def get(self, request, id):
+        g = Group.objects.get(id=id)
+        dic = g.get_dic()
+        acl = dic['acl'].split(',')
+
+        buttons = Button.objects.all()
+
+        def gettree(nodes):
+            def getchildren(parentid):
+                child_nodes = []
+                for obj in nodes:
+                    if obj.parentid == parentid:
+                        obj.children = getchildren(obj.id)
+                        child_nodes.append(obj)
+                sorted_nodes = sorted(child_nodes, key=lambda elem: "%s" %
+                                      elem.orderby, reverse=False)
+                return sorted_nodes
+            return getchildren(0)
+
+        tree = gettree(buttons)
+
+        def treenode(node):
+            html = ""
+            if node.children:
+                html = html + "<ul>"
+                for child in node.children:
+                    checked = str(child.id) in acl and ',checked:true' or ''
+                    options = " data-options=\"attributes:{'id':'%s','no':'%s'}%s\"" % (
+                        child.id, child.buttonno, checked)
+                    html = html + "<li" + options + ">"
+                    html = html + "<span>" + child.buttontitle + "</span>"
+                    html = html + treenode(child)
+                    html = html + "</li>"
+                html = html + "</ul>"
+            return html
+
+        html = ""
+        for obj in tree:
+            checked = str(obj.id) in acl and ',checked:true' or ''
+            options = " data-options=\"attributes:{'id':'%s','no':'%s'},state:'closed'%s\"" % (
+                obj.id, obj.buttonno, checked)
+            html = html + "<li" + options + ">"
+            html = html + "<span>" + obj.buttontitle + "</span>"
+            html = html + treenode(obj)
+            html = html + "</li>"
+
+        return render(request, 'priv.html', {"tree": html, 'title': '用户组权限', 'id': id})
+
+    @authenticated
+    def post(self, request, id):
+        acl = request.POST.get('acl')
+        try:
+            g = Group.objects.get(id=id)
+            g.acl = acl
+            g.save()
+            json_data = Json.encode({'error': 0, 'id': id})
+            return HttpResponse(json_data, content_type='application/json')
+        except Exception, e:
+            print e
+            json_data = Json.encode(
+                {'error': 1, 'info': [{'name': '', 'msg': '数据更新错误'}]})
+            return HttpResponse(json_data, content_type='application/json')
 
 
 def add(request):

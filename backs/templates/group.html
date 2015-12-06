@@ -76,23 +76,12 @@
         fitColumns: false,
         fit: true,
         onClickRow: function(index, row) {
-            var rows = $('#group_list').datagrid('getSelections');
-            if (rows.length == 0 || rows.length > 1) {
-                $('#btn_group_edit').linkbutton('disable');
-                $('#btn_group_priv').linkbutton('disable');
-            } else {
-                $('#btn_group_edit').linkbutton('enable');
-                $('#btn_group_priv').linkbutton('enable');
-            }
-            if (rows.length > 0) {
-                if (rows.length == 1 && rows[0].id == 1) {
-                    $('#btn_group_remove').linkbutton('disable');
-                } else {
-                    $('#btn_group_remove').linkbutton('enable');
-                }
-            } else {
-                $('#btn_group_remove').linkbutton('disable');
-            }
+            checkToolbarButton();
+        },
+        onDblClickRow: function(index, row) {
+            $('#group_list').datagrid('unselectAll');
+            $('#group_list').datagrid('checkRow', index);
+            checkToolbarButton();
         },
         onLoadSuccess: function(data) {
             $('#btn_group_edit').linkbutton('disable');
@@ -100,4 +89,24 @@
             $('#btn_group_priv').linkbutton('disable');
         }
     });
+
+    function checkToolbarButton(){
+        var rows = $('#group_list').datagrid('getSelections');
+        if (rows.length == 0 || rows.length > 1) {
+            $('#btn_group_edit').linkbutton('disable');
+            $('#btn_group_priv').linkbutton('disable');
+        } else {
+            $('#btn_group_edit').linkbutton('enable');
+            $('#btn_group_priv').linkbutton('enable');
+        }
+        if (rows.length > 0) {
+            if (rows.length == 1 && rows[0].id == 1) {
+                $('#btn_group_remove').linkbutton('disable');
+            } else {
+                $('#btn_group_remove').linkbutton('enable');
+            }
+        } else {
+            $('#btn_group_remove').linkbutton('disable');
+        }
+    }
 </script>

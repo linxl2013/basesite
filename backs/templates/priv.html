@@ -1,0 +1,32 @@
+    <div region="west" split="true" title="" style="padding:20px;">
+        <ul id="priv" class="easyui-tree" data-options="animate:true,checkbox:true">
+            <li>
+                <span>所有权限</span>
+                <ul>
+                {{ tree|safe }}
+                </ul>
+            </li>
+        </ul>
+    </div>
+<div style="margin:10px 20px;">
+    <a href="#" class="easyui-linkbutton" onclick="savePriv()">&nbsp;&nbsp;保&nbsp;&nbsp;存&nbsp;&nbsp;</a>
+</div>
+<script type="text/javascript">
+function savePriv(){
+    var nodes = $('#priv').tree('getChecked');
+    var acl = [];
+    for(var i=0; i<nodes.length; i++){
+        if(nodes[i].attributes != undefined){
+            acl.push(nodes[i].attributes.id);
+        }
+    }
+
+    $.post('/admin/group/priv/{{ id }}', {acl : acl.join(',')}, function(data){
+        if(data.error == 0){
+            $('#tt').tabs('close', '{{ title }}');
+        }else{
+            alert(data.msg);
+        }
+    }, 'json');
+}
+</script>

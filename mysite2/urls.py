@@ -48,5 +48,5 @@ urlpatterns = [
     url(r'^admin/group/edit/(\d+)$', group_edit.as_view(), name='group_edit'),
     url(r'^admin/group/edit$', group_edit.as_view(), name='group_edit'),
     url(r'^admin/group/del$', 'backs.views.group_del', name='group_del'),
-    url(r'^admin/group/priv/(\d+)$', 'backs.views.group_priv', name='group_priv'),
+    url(r'^admin/group/priv/(\d+)$', group_priv.as_view(), name='group_priv'),
 ]

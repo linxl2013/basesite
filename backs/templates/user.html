@@ -75,21 +75,30 @@
         fitColumns: false,
         fit: true,
         onClickRow: function(index, row) {
-            var rows = $('#user_list').datagrid('getSelections');
-            if (rows.length ==0 || rows.length > 1) {
-                $('#btn_user_edit').linkbutton('disable');
-            } else {
-                $('#btn_user_edit').linkbutton('enable');
-            }
-            if (rows.length > 0) {
-                $('#btn_user_remove').linkbutton('enable');
-            } else {
-                $('#btn_user_remove').linkbutton('disable');
-            }
+            checkToolbarButton();
+        },
+        onDblClickRow: function(index, row) {
+            $('#user_list').datagrid('unselectAll');
+            $('#user_list').datagrid('checkRow', index);
+            checkToolbarButton();
         },
         onLoadSuccess: function(data) {
             $('#btn_user_edit').linkbutton('disable');
             $('#btn_user_remove').linkbutton('disable');
         }
     });
+
+    function checkToolbarButton(){
+        var rows = $('#user_list').datagrid('getSelections');
+        if (rows.length ==0 || rows.length > 1) {
+            $('#btn_user_edit').linkbutton('disable');
+        } else {
+            $('#btn_user_edit').linkbutton('enable');
+        }
+        if (rows.length > 0) {
+            $('#btn_user_remove').linkbutton('enable');
+        } else {
+            $('#btn_user_remove').linkbutton('disable');
+        }
+    }
 </script>
