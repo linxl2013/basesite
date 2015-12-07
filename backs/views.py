@@ -5,7 +5,7 @@ from django.views.generic.base import View
 from django.contrib.auth.hashers import make_password
 from django.db import connection, transaction
 from backs.models import *
-from backs.LoginBackend import *
+from backs.filter import *
 from mysite2.GetForm import *
 from mysite2.utils import *
 from functools import wraps
@@ -64,7 +64,7 @@ class login(View):
 
     def get(self, request):
         if request.is_ajax():
-            return HttpResponse("<srcipt>top.location.href='/admin/login';</srcipt>")
+            return HttpResponse("<script type='text/javascript'>top.location.href='/admin/login';</script>")
         else:
             return render(request, 'login.html')
 
@@ -94,7 +94,7 @@ def logout(request):
 
 @authenticated
 def user(request):
-    return render(request, 'user.html')
+    return render(request, 'user.html', {'page_id': 'user_list'})
 
 
 @authenticated
@@ -267,7 +267,7 @@ def user_del(request):
 
 @authenticated
 def group(request):
-    return render(request, 'group.html')
+    return render(request, 'group.html', {'page_id': 'group_list'})
 
 
 @authenticated

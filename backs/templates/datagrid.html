@@ -1,0 +1,25 @@
+	<table id="{{ page_id }}"></table>
+<script type="text/javascript">
+    $('#{{ page_id }}').datagrid({
+        url: {% block url %}{% endblock %},
+        queryParams: {% block queryParams %}{}{% endblock %},
+        border: false,
+        pageSize: 20,
+        rownumbers: true,
+        toolbar: {% block toolbar %}{% endblock %},
+        columns: {% block columns %}{% endblock %},
+        pagination: true,
+        fitColumns: false,
+        fit: true,
+        onClickRow: function(index, row) {
+            {% block onClickRow %}{% endblock %}
+        },
+        onDblClickRow: function(index, row) {
+            {% block onDblClickRow %}{% endblock %}
+        },
+        onLoadSuccess: function(data) {
+            {% block onLoadSuccess %}{% endblock %}
+        }
+    });
+{% block otherjs %}{% endblock %}
+</script>

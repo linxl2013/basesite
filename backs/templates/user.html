@@ -1,14 +1,8 @@
-	<table id="user_list"></table>
-<script type="text/javascript">
-    $('#user_list').datagrid({
-        url:'/admin/user/list',
-        queryParams: {
-            data: true,
-        },
-        border: false,
-        pageSize: 20,
-        rownumbers: true,
-        toolbar: [{
+{% extends 'datagrid.html' %}
+
+{% block url %}'/admin/user/list'{% endblock %}
+{% block toolbar %}
+        [{
             text: '新增用户',
             iconCls: 'icon-add',
             handler: function(){
@@ -51,8 +45,10 @@
                     }
                 });
             }
-        }],
-        columns:[[
+        }]
+{% endblock %}
+{% block columns %}
+        [[
             {field: 'id', title: 'ID', width: 100},
             {field: 'account', title: '帐号', width: 100},
             {field: 'realname', title: '真实姓名', width: 100},
@@ -70,24 +66,21 @@
                         return value;
                     }
             }},
-        ]],
-        pagination: true,
-        fitColumns: false,
-        fit: true,
-        onClickRow: function(index, row) {
+        ]]
+{% endblock %}
+{% block onClickRow %}
             checkToolbarButton();
-        },
-        onDblClickRow: function(index, row) {
+{% endblock %}
+{% block onDblClickRow %}
             $('#user_list').datagrid('unselectAll');
             $('#user_list').datagrid('checkRow', index);
             checkToolbarButton();
-        },
-        onLoadSuccess: function(data) {
+{% endblock %}
+{% block onLoadSuccess %}
             $('#btn_user_edit').linkbutton('disable');
             $('#btn_user_remove').linkbutton('disable');
-        }
-    });
-
+{% endblock %}
+{% block otherjs %}
     function checkToolbarButton(){
         var rows = $('#user_list').datagrid('getSelections');
         if (rows.length ==0 || rows.length > 1) {
@@ -101,4 +94,4 @@
             $('#btn_user_remove').linkbutton('disable');
         }
     }
-</script>
+{% endblock %}

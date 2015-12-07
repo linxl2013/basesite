@@ -1,14 +1,8 @@
-	<table id="group_list"></table>
-<script type="text/javascript">
-    $('#group_list').datagrid({
-        url:'/admin/group/list',
-        queryParams: {
-            data: true,
-        },
-        border: false,
-        pageSize: 20,
-        rownumbers: true,
-        toolbar: [{
+{% extends 'datagrid.html' %}
+
+{% block url %}'/admin/group/list'{% endblock %}
+{% block toolbar %}
+        [{
             text: '新增用户组',
             iconCls: 'icon-add',
             handler: function(){
@@ -65,31 +59,30 @@
                     addFrom('用户组权限', '/admin/group/priv/' + row.id);
                 }
             }
-        }],
-        columns:[[
+        }]
+{% endblock %}
+{% block columns %}
+        [[
             {field: 'id', title: 'ID', width: 100},
             {field: 'name', title: '用户组名', width: 120},
             {field: 'role', title: '分组', width: 120},
             {field: 'desc', title: '描述', width: 300},
-        ]],
-        pagination: true,
-        fitColumns: false,
-        fit: true,
-        onClickRow: function(index, row) {
+        ]]
+{% endblock %}
+{% block onClickRow %}
             checkToolbarButton();
-        },
-        onDblClickRow: function(index, row) {
+{% endblock %}
+{% block onDblClickRow %}
             $('#group_list').datagrid('unselectAll');
             $('#group_list').datagrid('checkRow', index);
             checkToolbarButton();
-        },
-        onLoadSuccess: function(data) {
+{% endblock %}
+{% block onLoadSuccess %}
             $('#btn_group_edit').linkbutton('disable');
             $('#btn_group_remove').linkbutton('disable');
             $('#btn_group_priv').linkbutton('disable');
-        }
-    });
-
+{% endblock %}
+{% block otherjs %}
     function checkToolbarButton(){
         var rows = $('#group_list').datagrid('getSelections');
         if (rows.length == 0 || rows.length > 1) {
@@ -109,4 +102,4 @@
             $('#btn_group_remove').linkbutton('disable');
         }
     }
-</script>
+{% endblock %}
