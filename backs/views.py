@@ -277,19 +277,39 @@ def group_list(request):
     page = request.POST.get('page')
     count = request.POST.get('rows')
 
-    sql = "select `id`, `name`, `role`, `desc` from backs_group limit %s, %s" % (
+    sql = "select `id`, `name`, `role`, `desc`, `parentid`, `orderby` from backs_group limit %s, %s" % (
         (int(page) - 1) * int(count), count)
     cursor = connection.cursor()
     cursor.execute(sql)
     fetchall = cursor.fetchall()
 
+    tree = []
+
+    def gettree(nodes):
+        def getchildren(parentid):
+            child_nodes = []
+            for obj in nodes:
+                if obj[4] == parentid:
+                    child_nodes.append(obj)
+                    child_nodes.extend(getchildren(obj[0]))
+            sorted_nodes = sorted(child_nodes, key=lambda elem: "%s" %
+                                  elem[5], reverse=False)
+            return sorted_nodes
+        return getchildren(0)
+
+    tree.extend(gettree(fetchall))
+
+    # parentId
     rows = []
-    for obj in fetchall:
+    for obj in tree:
         dic = {}
         dic["id"] = obj[0]
         dic["name"] = obj[1]
         dic["role"] = obj[2]
         dic["desc"] = obj[3]
+        dic["orderby"] = obj[5]
+        if obj[4] != 0:
+            dic["_parentId"] = obj[4]
         rows.append(dic)
 
     data = {'total': total, 'rows': rows}
@@ -316,7 +336,7 @@ class group_add(View):
 
         try:
             g = Group(role=data["role"], name=data[
-                      "name"], desc=data["desc"], acl="")
+                      "name"], desc=data["desc"], acl="", parentid=0)
             g.save()
             groupid = g.id
             json_data = Json.encode({'error': 0, 'id': groupid})
@@ -381,6 +401,18 @@ def group_del(request):
         json_data = Json.encode(
             {'error': 1, 'info': [{'name': '', 'msg': '数据更新错误'}]})
         return HttpResponse(json_data, content_type='application/json')
+
+
+@authenticated
+def group_order(request):
+    id = request.GET.get("id")
+    orderby = request.GET.get("orderby")
+
+    g = Group.objects.get(id=id)
+    g.orderby = orderby
+    g.save()
+
+    return HttpResponse("ok")
 
 
 class group_priv(View):

@@ -90,6 +90,8 @@ class Group(models.Model):
     role = models.CharField(max_length=30)
     desc = models.CharField(max_length=255)
     acl = models.TextField()
+    parentid = models.IntegerField()
+    orderby = models.IntegerField()
 
     def get_dic(self):
         dic = self.__dict__

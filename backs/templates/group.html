@@ -1,4 +1,4 @@
-{% extends 'datagrid.html' %}
+{% extends 'treegrid.html' %}
 
 {% block url %}'/admin/group/list'{% endblock %}
 {% block toolbar %}
@@ -13,7 +13,7 @@
             text: '编辑',
             iconCls: 'icon-edit',
             handler: function() {
-                var row = $('#group_list').datagrid('getSelected');
+                var row = $('#group_list').treegrid('getSelected');
                 if (row) {
                     addFrom('编辑用户组', '/admin/group/edit/' + row.id);
                 }
@@ -24,7 +24,7 @@
             iconCls: 'icon-remove',
             handler: function() {
                 var ids = [];
-                var rows = $('#group_list').datagrid('getSelections');
+                var rows = $('#group_list').treegrid('getSelections');
                 if (rows.length < 1) return false;
                 for (var i = 0; i < rows.length; i++) {
                     if (rows[i].id == 1) {
@@ -42,7 +42,7 @@
                     success:function(data){
                         if(data.error == 0){
                             $('#tt').tabs('close', '编辑用户组');
-                            $('#group_list').datagrid('reload');
+                            $('#group_list').treegrid('reload');
                         }else{
                             alert(str);
                         }
@@ -54,28 +54,46 @@
             text: '权限',
             iconCls: 'icon-filter',
             handler: function() {
-                var row = $('#group_list').datagrid('getSelected');
+                var row = $('#group_list').treegrid('getSelected');
                 if (row) {
                     addFrom('用户组权限', '/admin/group/priv/' + row.id);
                 }
+            }
+        }, '-', {
+            id: 'btn_group_orderby',
+            text: '保存排序',
+            iconCls: 'icon-save',
+            handler: function() {
+                endEdit();
+                // var row = $('#group_list').treegrid('getSelected');
+                // if (row) {
+                //     addFrom('编辑用户组', '/admin/group/edit/' + row.id);
+                // }
             }
         }]
 {% endblock %}
 {% block columns %}
         [[
-            {field: 'id', title: 'ID', width: 100},
+            {field: 'id', title: 'ID', width: 50},
             {field: 'name', title: '用户组名', width: 120},
             {field: 'role', title: '分组', width: 120},
             {field: 'desc', title: '描述', width: 300},
+            {field: 'orderby', title: '排序', width: 50, editor: 'numberbox'},
         ]]
 {% endblock %}
 {% block onClickRow %}
             checkToolbarButton();
 {% endblock %}
-{% block onDblClickRow %}
-            $('#group_list').datagrid('unselectAll');
-            $('#group_list').datagrid('checkRow', index);
-            checkToolbarButton();
+{% block onClickCell %}
+            // console.log(field);
+            // console.log(row);
+            if (field == 'orderby'){
+                cancelEdit();
+                editingId = row.id
+                $('#group_list').treegrid('beginEdit', editingId);
+            }else{
+                endEdit();
+            }
 {% endblock %}
 {% block onLoadSuccess %}
             $('#btn_group_edit').linkbutton('disable');
@@ -84,7 +102,7 @@
 {% endblock %}
 {% block otherjs %}
     function checkToolbarButton(){
-        var rows = $('#group_list').datagrid('getSelections');
+        var rows = $('#group_list').treegrid('getSelections');
         if (rows.length == 0 || rows.length > 1) {
             $('#btn_group_edit').linkbutton('disable');
             $('#btn_group_priv').linkbutton('disable');
@@ -100,6 +118,22 @@
             }
         } else {
             $('#btn_group_remove').linkbutton('disable');
+        }
+    }
+    function cancelEdit(){
+        if (editingId != null){
+            $('#group_list').treegrid('cancelEdit', editingId);
+            editingId = null;
+        }
+    }
+    function endEdit(id, orderby){
+        if (editingId != null){
+            $('#group_list').treegrid('endEdit', editingId);
+            var row = $('#group_list').treegrid('getSelected');
+            $.get('/admin/group/order', {id: row.id, orderby: row.orderby}, function(data){
+                $('#group_list').treegrid('reload');
+            });
+            editingId = null;
         }
     }
 {% endblock %}
