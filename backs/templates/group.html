@@ -82,7 +82,7 @@
         ]]
 {% endblock %}
 {% block onClickRow %}
-            checkToolbarButton();
+            checkGroupToolbarButton();
 {% endblock %}
 {% block onClickCell %}
             // console.log(field);
@@ -101,7 +101,7 @@
             $('#btn_group_priv').linkbutton('disable');
 {% endblock %}
 {% block otherjs %}
-    function checkToolbarButton(){
+    function checkGroupToolbarButton(){
         var rows = $('#group_list').treegrid('getSelections');
         if (rows.length == 0 || rows.length > 1) {
             $('#btn_group_edit').linkbutton('disable');
@@ -128,11 +128,15 @@
     }
     function endEdit(id, orderby){
         if (editingId != null){
-            $('#group_list').treegrid('endEdit', editingId);
             var row = $('#group_list').treegrid('getSelected');
-            $.get('/admin/group/order', {id: row.id, orderby: row.orderby}, function(data){
-                $('#group_list').treegrid('reload');
-            });
+            var pre_order = row.orderby;
+            $('#group_list').treegrid('endEdit', editingId);
+            row = $('#group_list').treegrid('getSelected');
+            if (pre_order != row.orderby) {
+                $.get('/admin/group/order', {id: row.id, orderby: row.orderby}, function(data){
+                    $('#group_list').treegrid('reload');
+                });
+            }
             editingId = null;
         }
     }

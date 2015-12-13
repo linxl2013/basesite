@@ -44,12 +44,7 @@
 				</tr>
 				<tr>
 					<td>用户组:</td>
-					<td>
-						<select class="easyui-combobox" name="role" data-options="panelHeight:'auto',required:true">
-							<option value="1">管理员</option>
-							<option value="2">用户</option>
-						</select>
-					</td>
+					<td><input class="easyui-combotree" value="" name="role" data-options="url:'/admin/group/tree',method:'get',required:true,panelHeight:'auto'"></td>
 				</tr>
 				<tr>
 					<td>锁定:</td>

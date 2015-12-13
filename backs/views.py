@@ -105,9 +105,11 @@ def user_list(request):
     count = request.POST.get('rows')
 
     sql = '''
-    select id, account, realname, nickname, email, phone, gender, visits, joined, locked, islock
-    from backs_account
-    where deleted = 0
+    select a.id, a.account, a.realname, a.nickname, a.email, a.phone, a.gender, a.visits, a.joined, a.locked, a.islock, g.name as gname 
+    from backs_account a 
+    left join backs_group g on a.role=g.id 
+    where a.deleted = 0
+    order by id asc
     limit %s, %s
     ''' % ((int(page) - 1) * int(count), count)
 
@@ -129,6 +131,7 @@ def user_list(request):
         dic["joined"] = obj[8]
         dic["locked"] = obj[9]
         dic["islock"] = obj[10]
+        dic["group"] = obj[11]
         rows.append(dic)
 
     data = {'total': total, 'rows': rows}
@@ -328,6 +331,7 @@ class group_add(View):
         form.post("name", text="用户组名", required=True)
         form.post("role")
         form.post("desc")
+        form.post("parentid", required=True)
         (ret, data) = form.check()
 
         if ret == 1:
@@ -336,7 +340,7 @@ class group_add(View):
 
         try:
             g = Group(role=data["role"], name=data[
-                      "name"], desc=data["desc"], acl="", parentid=0)
+                      "name"], desc=data["desc"], acl="", parentid=data["parentid"])
             g.save()
             groupid = g.id
             json_data = Json.encode({'error': 0, 'id': groupid})
@@ -356,7 +360,7 @@ class group_edit(View):
         dic = g.get_dic()
         del dic["acl"]
 
-        return render(request, 'group_add.html', {'title': '编辑用户组', 'url': '/admin/group/edit', 'data': Json.encode(dic)})
+        return render(request, 'group_add.html', {'title': '编辑用户组', 'url': '/admin/group/edit', 'json': Json.encode(dic), 'data': dic})
 
     @authenticated
     def post(self, request):
@@ -366,6 +370,7 @@ class group_edit(View):
         form.post("name", text="用户组名", required=True)
         form.post("role")
         form.post("desc")
+        form.post("parentid", required=True)
         (ret, data) = form.check()
 
         if ret == 1:
@@ -377,6 +382,7 @@ class group_edit(View):
             g.name = data["name"]
             g.role = data["role"]
             g.desc = data["desc"]
+            g.parentid = data["parentid"]
             g.save()
             json_data = Json.encode({'error': 0, 'id': id})
             return HttpResponse(json_data, content_type='application/json')
@@ -480,6 +486,49 @@ class group_priv(View):
             json_data = Json.encode(
                 {'error': 1, 'info': [{'name': '', 'msg': '数据更新错误'}]})
             return HttpResponse(json_data, content_type='application/json')
+
+
+@authenticated
+def group_tree(request):
+    top = request.GET.get('top', None)
+    g = Group.objects.all()
+
+    def gettree(nodes):
+        def getchildren(parentid):
+            child_nodes = []
+            for obj in nodes:
+                if obj.parentid == parentid:
+                    obj.children = getchildren(obj.id)
+                    child_nodes.append(obj)
+            sorted_nodes = sorted(child_nodes, key=lambda elem: "%s" %
+                                  elem.orderby, reverse=False)
+            return sorted_nodes
+        return getchildren(0)
+
+    tree_obj = gettree(g)
+    print tree_obj
+
+    def treenode(nodes):
+        def getchildren(nodes):
+            child_nodes = []
+            for obj in nodes:
+                dic = {}
+                dic["id"] = obj.id
+                dic["text"] = obj.name
+                dic["children"] = getchildren(obj.children)
+                child_nodes.append(dic)
+            return child_nodes
+        return getchildren(nodes)
+
+    tree = treenode(tree_obj)
+
+    if top != None:
+        json = [{"id": 0, "text": "顶级用户组", "children": tree}]
+    else:
+        json = tree
+
+    json_data = Json.encode(json)
+    return HttpResponse(json_data, content_type='application/json')
 
 
 def add(request):

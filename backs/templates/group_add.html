@@ -15,6 +15,10 @@
 					<td>描述:</td>
 					<td><textarea class="easyui-textbox" name="desc" style="height:70px;" data-options="multiline:true"></textarea></td>
 				</tr>
+				<tr>
+					<td>所属:</td>
+					<td><input class="easyui-combotree" value="" name="parentid" data-options="url:'/admin/group/tree?top=1',method:'get',required:true,panelHeight:'auto'"></td>
+				</tr>
 			</table>
 			{% if data %}
 			<input type="hidden" name="id" value="{{ data.id }}" />
@@ -67,7 +71,7 @@ function submitForm(){
 function clearForm(){
 	$('#group_panel').form('clear');
 }
-{% if data %}
-$('#group_panel').form('load', {{ data|safe }});
+{% if json %}
+$('#group_panel').form('load', {{ json|safe }});
 {% endif %}
 </script>

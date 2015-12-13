@@ -53,6 +53,7 @@
             {field: 'account', title: '帐号', width: 100},
             {field: 'realname', title: '真实姓名', width: 100},
             {field: 'nickname', title: '昵称', width: 100},
+            {field: 'group', title: '用户组', width: 100},
             {field: 'email', title: '电子邮件', width: 100},
             {field: 'phone', title: '手机', width: 100},
             {field: 'gender', title: '性别', width: 100},
@@ -69,19 +70,19 @@
         ]]
 {% endblock %}
 {% block onClickRow %}
-            checkToolbarButton();
+            checkUserToolbarButton();
 {% endblock %}
 {% block onDblClickRow %}
             $('#user_list').datagrid('unselectAll');
             $('#user_list').datagrid('checkRow', index);
-            checkToolbarButton();
+            checkUserToolbarButton();
 {% endblock %}
 {% block onLoadSuccess %}
             $('#btn_user_edit').linkbutton('disable');
             $('#btn_user_remove').linkbutton('disable');
 {% endblock %}
 {% block otherjs %}
-    function checkToolbarButton(){
+    function checkUserToolbarButton(){
         var rows = $('#user_list').datagrid('getSelections');
         if (rows.length ==0 || rows.length > 1) {
             $('#btn_user_edit').linkbutton('disable');
