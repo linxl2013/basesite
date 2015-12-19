@@ -275,7 +275,7 @@ def group(request):
 
 @authenticated
 def group_list(request):
-    total = Account.objects.count()
+    total = Group.objects.count()
 
     page = request.POST.get('page')
     count = request.POST.get('rows')
@@ -463,7 +463,7 @@ class group_priv(View):
         html = ""
         for obj in tree:
             checked = str(obj.id) in acl and ',checked:true' or ''
-            options = " data-options=\"attributes:{'id':'%s','no':'%s'},state:'closed'%s\"" % (
+            options = " data-options=\"attributes:{'id':'%s','no':'%s'}%s\"" % (
                 obj.id, obj.buttonno, checked)
             html = html + "<li" + options + ">"
             html = html + "<span>" + obj.buttontitle + "</span>"
