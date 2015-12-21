@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 
     'backs',
+    'project',
 )
 
 MIDDLEWARE_CLASSES = (
