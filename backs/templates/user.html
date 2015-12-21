@@ -56,7 +56,14 @@
             {field: 'group', title: '用户组', width: 100},
             {field: 'email', title: '电子邮件', width: 100},
             {field: 'phone', title: '手机', width: 100},
-            {field: 'gender', title: '性别', width: 100},
+            {field: 'gender', title: '性别', width: 100,
+                formatter: function(value, data) {
+                    if (data.gender == 'f') {
+                        return '女';
+                    } else {
+                        return '男';
+                    }
+            }},
             {field: 'visits', title: '访问次数', width: 100},
             {field: 'joined', title: '加入时间', width: 130},
             {field: 'locked', title: '锁定时间', width: 130,
