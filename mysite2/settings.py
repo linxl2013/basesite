@@ -52,6 +52,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'mysite2.http.SetRemoteAddrFromForwardedFor',
 )
 
 ROOT_URLCONF = 'mysite2.urls'

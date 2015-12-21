@@ -11,6 +11,7 @@ from mysite2.utils import *
 from functools import wraps
 
 
+# 首页
 @authenticated
 def index(request):
     menus = Menu.objects.all()
@@ -62,17 +63,19 @@ def home(request):
 
 class login(View):
 
+    # 登录页面
     def get(self, request):
         if request.is_ajax():
             return HttpResponse("<script type='text/javascript'>top.location.href='/admin/login';</script>")
         else:
             return render(request, 'login.html')
 
+    # 提交登录
     def post(self, request):
         username = request.POST.get('user-name', '')
         password = request.POST.get('user-password', '')
         account = Account()
-        (state, data) = account.authenticate(username, password)
+        (state, data) = account.authenticate(request, username, password)
         print state
         if state == 0:
             request.session['user_id'] = data['id']
@@ -82,6 +85,7 @@ class login(View):
             return render(request, 'login.html', {'state': state, 'info': data, 'name': username})
 
 
+# 登出
 def logout(request):
     try:
         del request.session['user_id']
@@ -92,11 +96,13 @@ def logout(request):
     return HttpResponse("You're logged out.")
 
 
+# 用户页面
 @authenticated
 def user(request):
     return render(request, 'user.html', {'page_id': 'user_list'})
 
 
+# 用户列表数据
 @authenticated
 def user_list(request):
     total = Account.objects.filter(deleted=0).count()
@@ -140,10 +146,12 @@ def user_list(request):
 
 class user_add(View):
 
+    # 添加用户页面
     @authenticated
     def get(self, request):
         return render(request, 'user_add.html', {'title': '新增用户', 'url': '/admin/user/add'})
 
+    # 添加用户操作
     @authenticated
     def post(self, request):
         form = GetForm(request)
@@ -169,14 +177,13 @@ class user_add(View):
             return HttpResponse(json_data, content_type='application/json')
 
         joined = datetime.now()
-        locked = datetime.now()
         visits = 0
 
         password = make_password(data["password"])
 
         try:
             a = Account(role=data["role"], account=data["account"], password=password, realname=data["realname"], nickname=data["nickname"], email=data[
-                        "email"], phone=data["phone"], gender=data["gender"], visits=0, joined=joined, locked=locked, islock=data["islock"])
+                        "email"], phone=data["phone"], gender=data["gender"], visits=0, joined=joined, islock=data["islock"])
             a.save()
             userid = a.id
             json_data = Json.encode({'error': 0, 'id': userid})
@@ -190,6 +197,7 @@ class user_add(View):
 
 class user_edit(View):
 
+    # 编辑用户页面
     @authenticated
     def get(self, request, id):
         a = Account.objects.get(id=id)
@@ -203,6 +211,7 @@ class user_edit(View):
 
         return render(request, 'user_add.html', {'title': '编辑用户', 'url': '/admin/user/edit', 'data': Json.encode(dic)})
 
+    # 编辑用户操作
     @authenticated
     def post(self, request):
         id = request.POST.get("id")
@@ -252,6 +261,7 @@ class user_edit(View):
             return HttpResponse(json_data, content_type='application/json')
 
 
+# 删除用户
 @authenticated
 def user_del(request):
     id = request.POST.get("id")
@@ -268,11 +278,13 @@ def user_del(request):
         return HttpResponse(json_data, content_type='application/json')
 
 
+# 用户组页面
 @authenticated
 def group(request):
     return render(request, 'group.html', {'page_id': 'group_list'})
 
 
+# 用户组列表数据
 @authenticated
 def group_list(request):
     total = Group.objects.count()
@@ -321,10 +333,12 @@ def group_list(request):
 
 class group_add(View):
 
+    # 添加用户组页面
     @authenticated
     def get(self, request):
         return render(request, 'group_add.html', {'title': '新增用户组', 'url': '/admin/group/add'})
 
+    # 添加用户组操作
     @authenticated
     def post(self, request):
         form = GetForm(request)
@@ -354,6 +368,7 @@ class group_add(View):
 
 class group_edit(View):
 
+    # 编辑用户组页面
     @authenticated
     def get(self, request, id):
         g = Group.objects.get(id=id)
@@ -362,6 +377,7 @@ class group_edit(View):
 
         return render(request, 'group_add.html', {'title': '编辑用户组', 'url': '/admin/group/edit', 'json': Json.encode(dic), 'data': dic})
 
+    # 编辑用户组操作
     @authenticated
     def post(self, request):
         id = request.POST.get("id")
@@ -393,6 +409,7 @@ class group_edit(View):
             return HttpResponse(json_data, content_type='application/json')
 
 
+# 删除用户组
 @authenticated
 def group_del(request):
     id = request.POST.get("id")
@@ -409,6 +426,7 @@ def group_del(request):
         return HttpResponse(json_data, content_type='application/json')
 
 
+# 用户组排序
 @authenticated
 def group_order(request):
     id = request.GET.get("id")
@@ -423,6 +441,7 @@ def group_order(request):
 
 class group_priv(View):
 
+    # 用户组权限页面
     @authenticated
     def get(self, request, id):
         g = Group.objects.get(id=id)
@@ -472,6 +491,7 @@ class group_priv(View):
 
         return render(request, 'priv.html', {"tree": html, 'title': '用户组权限', 'id': id})
 
+    # 用户组权限修改
     @authenticated
     def post(self, request, id):
         acl = request.POST.get('acl')
@@ -488,6 +508,7 @@ class group_priv(View):
             return HttpResponse(json_data, content_type='application/json')
 
 
+# 用户组列表数据
 @authenticated
 def group_tree(request):
     top = request.GET.get('top', None)
@@ -529,15 +550,3 @@ def group_tree(request):
 
     json_data = Json.encode(json)
     return HttpResponse(json_data, content_type='application/json')
-
-
-def add(request):
-    a = request.GET['a']
-    b = request.GET['b']
-    c = int(a) + int(b)
-    return HttpResponse(str(c))
-
-
-def add2(request, a, b):
-    c = int(a) + int(b)
-    return HttpResponse(str(c))
