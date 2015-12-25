@@ -51,4 +51,6 @@ urlpatterns = [
     url(r'^admin/group/priv/(\d+)$', group_priv.as_view(), name='group_priv'),
     url(r'^admin/group/order$', 'backs.views.group_order', name='group_order'),
     url(r'^admin/group/tree$', 'backs.views.group_tree', name='group_tree'),
+
+    url(r'^admin/project$', 'project.views.project', name='project'),
 ]
