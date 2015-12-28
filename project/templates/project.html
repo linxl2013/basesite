@@ -1,0 +1,93 @@
+{% extends 'datagrid.html' %}
+
+{% block url %}'/admin/project/list'{% endblock %}
+{% block toolbar %}
+        [{
+            text: '新增项目',
+            iconCls: 'icon-add',
+            handler: function(){
+                addFrom('新增项目', '/admin/project/add')
+            }
+        }, '-', {
+            id:'btn_project_edit',
+            text: '编辑',
+            iconCls: 'icon-edit',
+            handler: function() {
+                var row = $('#project_list').datagrid('getSelected');
+                if (row) {
+                    addFrom('编辑项目', '/admin/project/edit/' + row.id);
+                }
+            }
+        }, {
+            id: 'btn_project_remove',
+            text: '删除',
+            iconCls: 'icon-remove',
+            handler: function() {
+                if (!confirm('确定要删除项目吗？')) return false;
+                var ids = [];
+                var rows = $('#project_list').datagrid('getSelections');
+                if (rows.length < 1) return false;
+                for (var i = 0; i < rows.length; i++) {
+                    ids.push(rows[i].id);
+                }
+                $.ajax({
+                    type: 'POST',
+                    url: '/admin/project/del',
+                    data: {id: ids.join(',')},
+                    dataType: 'json',
+                    success:function(data){
+                        if(data.error == 0){
+                            $('#tt').tabs('close', '编辑项目');
+                            $('#project_list').datagrid('reload');
+                        }else{
+                            alert(str);
+                        }
+                    }
+                });
+            }
+        }]
+{% endblock %}
+{% block columns %}
+        [[
+            {field: 'id', title: 'ID', width: 60},
+            {field: 'projectname', title: '项目名称', width: 100},
+            {field: 'projectcode', title: '项目代号', width: 100},
+            {field: 'group', title: '项目负责人', width: 100},
+            {field: 'starttime', title: '开始时间', width: 130},
+            {field: 'endtime', title: '结束时间', width: 130,
+                formatter: function(value, data) {
+                    if (data.islock == 0) {
+                        return '未锁定';
+                    } else {
+                        return value;
+                    }
+            }},
+        ]]
+{% endblock %}
+{% block onClickRow %}
+            checkUserToolbarButton();
+{% endblock %}
+{% block onDblClickRow %}
+            $('#project_list').datagrid('unselectAll');
+            $('#project_list').datagrid('checkRow', index);
+            checkUserToolbarButton();
+{% endblock %}
+{% block onLoadSuccess %}
+            $('#btn_project_edit').linkbutton('disable');
+            $('#btn_project_remove').linkbutton('disable');
+{% endblock %}
+{% block otherjs %}
+    function checkUserToolbarButton(){
+        var rows = $('#project_list').datagrid('getSelections');
+        if (rows.length ==0 || rows.length > 1) {
+            $('#btn_project_edit').linkbutton('disable');
+        } else {
+            $('#btn_project_edit').linkbutton('enable');
+        }
+        if (rows.length > 0) {
+            $('#btn_project_remove').linkbutton('enable');
+        } else {
+            $('#btn_project_remove').linkbutton('disable');
+        }
+    }
+{% endblock %}

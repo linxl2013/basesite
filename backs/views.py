@@ -8,7 +8,6 @@ from backs.models import *
 from backs.filter import *
 from mysite2.GetForm import *
 from mysite2.utils import *
-from functools import wraps
 
 
 # 首页

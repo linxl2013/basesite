@@ -1,15 +1,13 @@
 # coding:utf-8
 from django.db import models
 
-# Create your models here.
-
 
 # 项目模型
 class Project(models.Model):
     projectname = models.CharField(max_length=255)
     projectcode = models.CharField(max_length=255)
-    starttime = models.DateTimeField(blank=True, null=True)
-    endtime = models.DateTimeField(blank=True, null=True)
+    starttime = models.DateField(blank=True, null=True)
+    endtime = models.DateField(blank=True, null=True)
     desc = models.TextField(blank=True, null=True)
     createuserid = models.IntegerField()
 

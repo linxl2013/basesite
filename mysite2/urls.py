@@ -53,4 +53,5 @@ urlpatterns = [
     url(r'^admin/group/tree$', 'backs.views.group_tree', name='group_tree'),
 
     url(r'^admin/project$', 'project.views.project', name='project'),
+    url(r'^admin/project/list$', 'project.views.project_list', name='project_list'),
 ]
