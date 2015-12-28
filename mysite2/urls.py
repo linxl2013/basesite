@@ -20,6 +20,7 @@ from django.contrib import admin
 # from backs.views import MyBase
 # from backs.views import index
 from backs.views import *
+from project.views import *
 
 urlpatterns = [
 	# url(r'^$', 'backs.views.index', name='home'),
@@ -54,4 +55,5 @@ urlpatterns = [
 
     url(r'^admin/project$', 'project.views.project', name='project'),
     url(r'^admin/project/list$', 'project.views.project_list', name='project_list'),
+    url(r'^admin/project/add$', project_add.as_view(), name='group_add'),
 ]

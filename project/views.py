@@ -60,14 +60,22 @@ class project_add(View):
     @authenticated
     def post(self, request):
         form = GetForm(request)
-        form.post("role", required=True)
-        form.post("account", text="项目名", required=True)
-        form.post("password", text="密码", required=True)
-        form.post("rpwd", text="重复密码")
-        form.post("realname")
-        form.post("nickname")
-        form.post("email", text="电子邮件", required=True, validType="email")
-        form.post("phone", text="手机号码", required=True, validType="mobile")
-        form.post("gender", required=True)
-        form.post("islock", required=True)
+        form.post("projectname", text="项目名称", required=True)
+        form.post("projectcode")
+        form.post("starttime")
+        form.post("endtime")
+        form.post("desc")
         (ret, data) = form.check()
+
+        try:
+            a = Project(projectname=data["projectname"], projectcode=data["projectcode"], starttime=data[
+                        "starttime"], endtime=data["endtime"], desc=data["desc"], createuserid=request.session.get('user_id'))
+            a.save()
+            projectid = a.id
+            json_data = Json.encode({'error': 0, 'id': projectid})
+            return HttpResponse(json_data, content_type='application/json')
+        except Exception, e:
+            print e
+            json_data = Json.encode(
+                {'error': 1, 'info': [{'name': '', 'msg': '数据更新错误'}]})
+            return HttpResponse(json_data, content_type='application/json')
