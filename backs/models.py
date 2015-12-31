@@ -1,12 +1,14 @@
 # coding:utf-8
 from django.db import models
+from django.db import connection, transaction
+from mysite2.Model import Model
 from datetime import date, datetime
 from django.contrib.auth.hashers import make_password, check_password
 import re
 
 
 # 用户模型
-class Account(models.Model):
+class Account(Model):
     role = models.CharField(max_length=10)
     account = models.CharField(max_length=30)
     password = models.CharField(max_length=64)
@@ -84,22 +86,57 @@ class Account(models.Model):
         # Sets a value that will never be a valid hash
         self.password = make_password(None)
 
-    # 获取数据
-    def get_dic(self):
-        dic = self.__dict__
-        if dic.has_key('_state'):
-            del dic['_state']
-        dic['lastlogin'] = isinstance(dic['lastlogin'], datetime) and dic[
-            'lastlogin'].strftime('%Y-%m-%d %H:%M:%S') or dic['lastlogin']
-        dic['joined'] = isinstance(dic['joined'], datetime) and dic[
-            'joined'].strftime('%Y-%m-%d %H:%M:%S') or dic['joined']
-        dic['locked'] = isinstance(dic['locked'], datetime) and dic[
-            'locked'].strftime('%Y-%m-%d %H:%M:%S') or dic['locked']
-        return dic
+    # 获取用户列表
+    def get_list(self, page=0, count=100, filter={}):
+        # a = Account.objects
+        where = 'where 1'
+        for (k, v) in filter.items():
+            # w = "a.filter(%s='%s')" % (k, v)
+            # eval(w)
+            where = where + " and %s='%s'" % (k, v)
+        # total = a.count()
+
+        sql = 'select count(id) from backs_account a %s' % where
+        cursor = connection.cursor()
+        cursor.execute(sql)
+        row = cursor.fetchone()
+        total = row[0]
+
+        sql = '''
+        select a.id, a.account, a.realname, a.nickname, a.email, a.phone, a.gender, a.visits, a.joined, a.locked, a.islock, g.name as gname 
+        from backs_account a 
+        left join backs_group g on a.role=g.id 
+        %s 
+        order by id asc
+        limit %s, %s
+        ''' % (where, (int(page) - 1) * int(count), count)
+
+        cursor = connection.cursor()
+        cursor.execute(sql)
+        fetchall = cursor.fetchall()
+
+        rows = []
+        for obj in fetchall:
+            dic = {}
+            dic["id"] = obj[0]
+            dic["account"] = obj[1]
+            dic["realname"] = obj[2]
+            dic["nickname"] = obj[3]
+            dic["email"] = obj[4]
+            dic["phone"] = obj[5]
+            dic["gender"] = obj[6]
+            dic["visits"] = obj[7]
+            dic["joined"] = obj[8]
+            dic["locked"] = obj[9]
+            dic["islock"] = obj[10]
+            dic["group"] = obj[11]
+            rows.append(dic)
+
+        return total, rows
 
 
 # 用户组模型
-class Group(models.Model):
+class Group(Model):
     name = models.CharField(max_length=30)
     role = models.CharField(max_length=30)
     desc = models.CharField(max_length=255)
@@ -107,20 +144,14 @@ class Group(models.Model):
     parentid = models.IntegerField()
     orderby = models.IntegerField(blank=True, default='0')
 
-    def get_dic(self):
-        dic = self.__dict__
-        if dic.has_key('_state'):
-            del dic['_state']
-        return dic
 
-
-class Grouppriv(models.Model):
+class Grouppriv(Model):
     groupid = models.IntegerField()
     buttonid = models.IntegerField()
 
 
 # 按钮模型
-class Button(models.Model):
+class Button(Model):
     parentid = models.IntegerField()
     buttontitle = models.CharField(max_length=30)
     buttonno = models.CharField(max_length=30)
@@ -132,7 +163,7 @@ class Button(models.Model):
 
 
 # 菜单模型
-class Menu(models.Model):
+class Menu(Model):
     parentid = models.IntegerField()
     menuname = models.CharField(max_length=30)
     menuurl = models.CharField(max_length=255)

@@ -1,9 +1,10 @@
 # coding:utf-8
 from django.db import models
+from mysite2.Model import Model
 
 
 # 项目模型
-class Project(models.Model):
+class Project(Model):
     projectname = models.CharField(max_length=255)
     projectcode = models.CharField(max_length=255)
     starttime = models.DateField(blank=True, null=True)
@@ -11,15 +12,9 @@ class Project(models.Model):
     desc = models.TextField(blank=True, null=True)
     createuserid = models.IntegerField()
 
-    def get_dic(self):
-        dic = self.__dict__
-        if dic.has_key('_state'):
-            del dic['_state']
-        return dic
-
 
 # 项目模块模型
-class Projectmodule(models.Model):
+class Projectmodule(Model):
     name = models.CharField(max_length=50)
     parentid = models.IntegerField()
     desc = models.TextField(blank=True, null=True)
@@ -27,7 +22,7 @@ class Projectmodule(models.Model):
 
 
 # 任务模型
-class Task(models.Model):
+class Task(Model):
     title = models.CharField(max_length=255)  # 名称
     desc = models.TextField(blank=True, null=True)  # 描述
     projectid = models.IntegerField()  # 项目id

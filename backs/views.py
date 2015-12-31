@@ -104,40 +104,11 @@ def user(request):
 # 用户列表数据
 @authenticated
 def user_list(request):
-    total = Account.objects.filter(deleted=0).count()
-
     page = request.POST.get('page')
     count = request.POST.get('rows')
 
-    sql = '''
-    select a.id, a.account, a.realname, a.nickname, a.email, a.phone, a.gender, a.visits, a.joined, a.locked, a.islock, g.name as gname 
-    from backs_account a 
-    left join backs_group g on a.role=g.id 
-    where a.deleted = 0
-    order by id asc
-    limit %s, %s
-    ''' % ((int(page) - 1) * int(count), count)
-
-    cursor = connection.cursor()
-    cursor.execute(sql)
-    fetchall = cursor.fetchall()
-
-    rows = []
-    for obj in fetchall:
-        dic = {}
-        dic["id"] = obj[0]
-        dic["account"] = obj[1]
-        dic["realname"] = obj[2]
-        dic["nickname"] = obj[3]
-        dic["email"] = obj[4]
-        dic["phone"] = obj[5]
-        dic["gender"] = obj[6]
-        dic["visits"] = obj[7]
-        dic["joined"] = obj[8]
-        dic["locked"] = obj[9]
-        dic["islock"] = obj[10]
-        dic["group"] = obj[11]
-        rows.append(dic)
+    a = Account()
+    total, rows = a.get_list(page, count, filter={'deleted': 0})
 
     data = {'total': total, 'rows': rows}
     return HttpResponse(Json.encode(data), content_type='application/json')
