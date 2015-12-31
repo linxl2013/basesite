@@ -11,6 +11,12 @@ class Project(models.Model):
     desc = models.TextField(blank=True, null=True)
     createuserid = models.IntegerField()
 
+    def get_dic(self):
+        dic = self.__dict__
+        if dic.has_key('_state'):
+            del dic['_state']
+        return dic
+
 
 # 项目模块模型
 class Projectmodule(models.Model):

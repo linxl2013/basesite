@@ -23,8 +23,9 @@ def project_list(request):
     count = request.POST.get('rows')
 
     sql = '''
-    select p.* 
+    select p.*,a.realname creater 
     from project_project p 
+    left join backs_account a on p.createuserid=a.id 
     order by id asc 
     limit %s, %s
     ''' % ((int(page) - 1) * int(count), count)
@@ -43,6 +44,8 @@ def project_list(request):
         dic["endtime"] = obj[4]
         dic["desc"] = obj[5]
         dic["createuserid"] = obj[6]
+        dic["creater"] = obj[7]
+        # dic["group"] = 'dsdsd,srtrt,gfgfg,uytuyt,fgfg'
         rows.append(dic)
 
     data = {'total': total, 'rows': rows}
@@ -68,10 +71,19 @@ class project_add(View):
         (ret, data) = form.check()
 
         try:
-            a = Project(projectname=data["projectname"], projectcode=data["projectcode"], starttime=data[
-                        "starttime"], endtime=data["endtime"], desc=data["desc"], createuserid=request.session.get('user_id'))
-            a.save()
-            projectid = a.id
+            p = Project()
+            p.projectname = data["projectname"]
+            p.createuserid = request.session.get('user_id')
+            if data["projectcode"]:
+                p.projectcode = data["projectcode"]
+            if data["starttime"]:
+                p.starttime = data["starttime"]
+            if data["endtime"]:
+                p.endtime = data["endtime"]
+            if data["desc"]:
+                p.desc = data["desc"]
+            p.save()
+            projectid = p.id
             json_data = Json.encode({'error': 0, 'id': projectid})
             return HttpResponse(json_data, content_type='application/json')
         except Exception, e:
@@ -79,3 +91,64 @@ class project_add(View):
             json_data = Json.encode(
                 {'error': 1, 'info': [{'name': '', 'msg': '数据更新错误'}]})
             return HttpResponse(json_data, content_type='application/json')
+
+
+class project_edit(View):
+
+    # 编辑项目页面
+    @authenticated
+    def get(self, request, id):
+        p = Project.objects.get(id=id)
+        dic = p.get_dic()
+
+        return render(request, 'project_add.html', {'title': '编辑项目', 'url': '/admin/project/edit', 'json': Json.encode(dic), 'data': dic})
+
+    # 编辑用户操作
+    @authenticated
+    def post(self, request):
+        id = request.POST.get("id")
+
+        form = GetForm(request)
+        form.post("projectname", text="项目名称", required=True)
+        form.post("projectcode")
+        form.post("starttime")
+        form.post("endtime")
+        form.post("desc")
+        (ret, data) = form.check()
+
+        try:
+            p = Project.objects.get(id=id)
+            p.projectname = data["projectname"]
+            if data["projectcode"]:
+                p.projectcode = data["projectcode"]
+            if data["starttime"]:
+                p.starttime = data["starttime"]
+            if data["endtime"]:
+                p.endtime = data["endtime"]
+            if data["desc"]:
+                p.desc = data["desc"]
+            p.save()
+            json_data = Json.encode({'error': 0, 'id': id})
+            return HttpResponse(json_data, content_type='application/json')
+        except Exception, e:
+            print e
+            json_data = Json.encode(
+                {'error': 1, 'info': [{'name': '', 'msg': '数据更新错误'}]})
+            return HttpResponse(json_data, content_type='application/json')
+
+
+# 删除用户组
+@authenticated
+def project_del(request):
+    id = request.POST.get("id")
+    id = id.split(",")
+
+    try:
+        Project.objects.filter(id__in=id).delete()
+        json_data = Json.encode({'error': 0, 'id': id})
+        return HttpResponse(json_data, content_type='application/json')
+    except Exception, e:
+        print e
+        json_data = Json.encode(
+            {'error': 1, 'info': [{'name': '', 'msg': '数据更新错误'}]})
+        return HttpResponse(json_data, content_type='application/json')

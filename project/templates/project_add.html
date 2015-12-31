@@ -46,7 +46,7 @@ $('#project_panel').ajaxForm({
 	success:function(data){
 		if(data.error == 0){
 			$('#tt').tabs('close', '{{ title }}');
-			$('#project_list').treegrid('reload');
+			$('#project_list').datagrid('reload');
 		}else{
 			var str = '';
 			for(var i=0;i<data.info.length;i++){
