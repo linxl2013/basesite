@@ -105,7 +105,7 @@ class Group(models.Model):
     desc = models.CharField(max_length=255)
     acl = models.TextField()
     parentid = models.IntegerField()
-    orderby = models.IntegerField()
+    orderby = models.IntegerField(blank=True, default='0')
 
     def get_dic(self):
         dic = self.__dict__

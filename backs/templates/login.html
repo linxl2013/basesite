@@ -64,5 +64,12 @@ $(function(){
 });
 </script>
 {% endif %}
+{% if not state %}
+<script type="text/javascript">
+$(function(){
+    $('#name').focus();
+});
+</script>
+{% endif %}
 </body>
 </html>
