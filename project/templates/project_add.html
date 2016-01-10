@@ -23,6 +23,17 @@
 					<td>项目描述:</td>
 					<td><textarea class="easyui-textbox" name="desc" style="width:70%;height:120px;" data-options="multiline:true"></textarea></td>
 				</tr>
+				<tr>
+					<td>项目负责人:</td>
+					<td>
+						<select data-placeholder="请选择负责人" id="charger" name="charger" class="chosen-select form-control" tabindex="2" style="width:50%" multiple>
+						{% for v in account %}
+							<option value="{{ v.account }}"{% if v.selected %} selected{% endif %}>{% if not v.realname %}{{ v.account }}{% else %}{{ v.realname }}{% endif %}</option>
+						{% endfor %}
+						</select>
+					</td>
+				</tr>
+				
 			</table>
 			{% if data %}
 			<input type="hidden" name="id" value="{{ data.id }}" />
@@ -75,7 +86,9 @@ function submitForm(){
 function clearForm(){
 	$('#project_panel').form('clear');
 }
-{% if json %}
-$('#project_panel').form('load', {{ json|safe }});
+{% if data %}
+{% load tag_extras %}
+$('#project_panel').form('load', {{ data|json|safe }});
 {% endif %}
+if($.fn.chosen) $('#charger').chosen();
 </script>

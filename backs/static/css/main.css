@@ -150,3 +150,51 @@ textarea.html,textarea.js{
 .tab-main-panel{
 	border: none;
 }
+
+
+
+/* zui */
+@font-face {
+	font-family: ZenIcon;
+	font-style: normal;
+	font-weight: normal;
+
+	src: url('/static/lib/zui/fonts/zenicon.eot?v=2.1.0');
+	src: url('/static/lib/zui/fonts/zenicon.eot?#iefix&v=2.1.0') format('embedded-opentype'), 
+		url('/static/lib/zui/fonts/zenicon.woff?v=2.1.0') format('woff'), 
+		url('/static/lib/zui/fonts/zenicon.ttf?v=2.1.0') format('truetype'), 
+		url('/static/lib/zui/fonts/zenicon.svg#regular?v=2.1.0') format('svg');
+}
+/*[class^="icon-"],
+[class*=" icon-"] {
+	font-family: ZenIcon;
+	font-size: 14px;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	line-height: 1;
+	text-transform: none;
+
+	speak: none;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}*/
+
+/*.panel-body, .textbox .textbox-text {
+    font-size: 13px;
+}
+.textbox .textbox-text {
+	padding: 5px 8px;
+}*/
+.chosen-container-multi .chosen-choices::before, .chosen-container-multi .chosen-choices::after {
+    display: inline;
+}
+.chosen-container-multi .chosen-choices {
+	box-shadow: none;
+	border: 1px solid #ddd;
+}
+.chosen-container-active .chosen-choices {
+  border-color: #ddd;
+  -webkit-box-shadow: inset 0 1px 1px #ddd, 0 0 8px #ddd;
+          box-shadow: inset 0 1px 1px #ddd, 0 0 8px #ddd;
+}

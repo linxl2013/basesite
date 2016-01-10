@@ -22,31 +22,7 @@ def project_list(request):
     page = request.POST.get('page')
     count = request.POST.get('rows')
 
-    sql = '''
-    select p.*,a.realname creater 
-    from project_project p 
-    left join backs_account a on p.createuserid=a.id 
-    order by id asc 
-    limit %s, %s
-    ''' % ((int(page) - 1) * int(count), count)
-
-    cursor = connection.cursor()
-    cursor.execute(sql)
-    fetchall = cursor.fetchall()
-
-    rows = []
-    for obj in fetchall:
-        dic = {}
-        dic["id"] = obj[0]
-        dic["projectname"] = obj[1]
-        dic["projectcode"] = obj[2]
-        dic["starttime"] = obj[3]
-        dic["endtime"] = obj[4]
-        dic["desc"] = obj[5]
-        dic["createuserid"] = obj[6]
-        dic["creater"] = obj[7]
-        # dic["group"] = 'dsdsd,srtrt,gfgfg,uytuyt,fgfg'
-        rows.append(dic)
+    total, rows = Project.objects.get_list(page, count)
 
     data = {'total': total, 'rows': rows}
     return HttpResponse(Json.encode(data), content_type='application/json')
@@ -57,7 +33,14 @@ class project_add(View):
     # 添加项目页面
     @authenticated
     def get(self, request):
-        return render(request, 'project_add.html', {'title': '新增项目', 'url': '/admin/project/add'})
+        a = Account.objects.all()
+        account = []
+        for v in a:
+            row = v.get_dic()
+            row['selected'] = False
+            account.append(row)
+
+        return render(request, 'project_add.html', {'title': '新增项目', 'url': '/admin/project/add', 'account':account})
 
     # 添加项目操作
     @authenticated
@@ -69,6 +52,8 @@ class project_add(View):
         form.post("endtime")
         form.post("desc")
         (ret, data) = form.check()
+
+        charger = request.POST.getlist("charger")
 
         try:
             p = Project()
@@ -84,6 +69,11 @@ class project_add(View):
                 p.desc = data["desc"]
             p.save()
             projectid = p.id
+
+            for v in charger:
+                p = Projectresponsible(projectid=projectid, responsible=v)
+                p.save()
+
             json_data = Json.encode({'error': 0, 'id': projectid})
             return HttpResponse(json_data, content_type='application/json')
         except Exception, e:
@@ -101,9 +91,25 @@ class project_edit(View):
         p = Project.objects.get(id=id)
         dic = p.get_dic()
 
-        return render(request, 'project_add.html', {'title': '编辑项目', 'url': '/admin/project/edit', 'json': Json.encode(dic), 'data': dic})
+        total, rows = Projectresponsible.objects.account_list(id)
+        responsibles = []
+        for v in rows:
+            responsibles.append(v['account'])
+
+        a = Account.objects.all()
+        account = []
+        for v in a:
+            row = v.get_dic()
+            row['selected'] = False
+            if row['account'] in responsibles:
+                row['selected'] = True
+            account.append(row)
+
+        return render(request, 'project_add.html', {'title': '编辑项目', 
+            'url': '/admin/project/edit', 'data': dic, 'account':account})
 
     # 编辑用户操作
+    # @transaction.commit_manually
     @authenticated
     def post(self, request):
         id = request.POST.get("id")
@@ -115,6 +121,8 @@ class project_edit(View):
         form.post("endtime")
         form.post("desc")
         (ret, data) = form.check()
+
+        charger = request.POST.getlist("charger")
 
         try:
             p = Project.objects.get(id=id)
@@ -128,10 +136,19 @@ class project_edit(View):
             if data["desc"]:
                 p.desc = data["desc"]
             p.save()
+
+            Projectresponsible.objects.filter(projectid=id).delete()
+            for v in charger:
+                p = Projectresponsible(projectid=id, responsible=v)
+                p.save()
+
+            # transaction.commit()
+
             json_data = Json.encode({'error': 0, 'id': id})
             return HttpResponse(json_data, content_type='application/json')
         except Exception, e:
             print e
+            # transaction.rollback()
             json_data = Json.encode(
                 {'error': 1, 'info': [{'name': '', 'msg': '数据更新错误'}]})
             return HttpResponse(json_data, content_type='application/json')
