@@ -71,7 +71,8 @@ function submitForm(){
 function clearForm(){
 	$('#group_panel').form('clear');
 }
-{% if json %}
-$('#group_panel').form('load', {{ json|safe }});
+{% if data %}
+{% load tag_extras %}
+$('#group_panel').form('load', {{ data|json|safe }});
 {% endif %}
 </script>

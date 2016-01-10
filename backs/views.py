@@ -8,6 +8,7 @@ from backs.models import *
 from backs.filter import *
 from mysite2.GetForm import *
 from mysite2.utils import *
+import copy
 
 
 # 首页
@@ -107,8 +108,7 @@ def user_list(request):
     page = request.POST.get('page')
     count = request.POST.get('rows')
 
-    a = Account()
-    total, rows = a.get_list(page, count, filter={'deleted': 0})
+    total, rows = Account.objects.get_list(page, count, filter={'deleted': 0})
 
     data = {'total': total, 'rows': rows}
     return HttpResponse(Json.encode(data), content_type='application/json')
@@ -134,7 +134,7 @@ class user_add(View):
         form.post("email", text="电子邮件", required=True, validType="email")
         form.post("phone", text="手机号码", required=True, validType="mobile")
         form.post("gender", required=True)
-        form.post("islock", required=True)
+        form.post("islock", default=0)
         (ret, data) = form.check()
 
         if ret == 1:
@@ -144,6 +144,10 @@ class user_add(View):
         if data["rpwd"] != data["password"]:
             json_data = Json.encode(
                 {'error': 1, 'info': [{'name': 'rpwd', 'msg': '重复密码不一致'}]})
+            return HttpResponse(json_data, content_type='application/json')
+
+        if not Account.objects.account_unique(data["account"]):
+            json_data = Json.encode({'error': ret, 'info': '用户名已被使用'})
             return HttpResponse(json_data, content_type='application/json')
 
         joined = datetime.now()
@@ -173,13 +177,12 @@ class user_edit(View):
         a = Account.objects.get(id=id)
         dic = a.get_dic()
         del dic["password"]
-        del dic["visits"]
-        del dic["joined"]
-        del dic["locked"]
-        del dic["islock"]
         del dic["deleted"]
 
-        return render(request, 'user_add.html', {'title': '编辑用户', 'url': '/admin/user/edit', 'data': Json.encode(dic)})
+        json = copy.copy(dic)
+        del json["islock"]
+
+        return render(request, 'user_add.html', {'title': '编辑用户', 'url': '/admin/user/edit', 'data': dic})
 
     # 编辑用户操作
     @authenticated
@@ -196,7 +199,7 @@ class user_edit(View):
         form.post("email", text="电子邮件", required=True, validType="email")
         form.post("phone", text="手机号码", required=True, validType="mobile")
         form.post("gender", required=True)
-        form.post("islock", required=True)
+        form.post("islock", default=0)
         (ret, data) = form.check()
 
         if ret == 1:
@@ -208,9 +211,14 @@ class user_edit(View):
                 {'error': 1, 'info': [{'name': 'rpwd', 'msg': '重复密码不一致'}]})
             return HttpResponse(json_data, content_type='application/json')
 
+        if not Account.objects.account_unique(data["account"], id):
+            json_data = Json.encode({'error': 1, 'info': [{'name': 'account', 'msg': '用户名已被使用'}]})
+            return HttpResponse(json_data, content_type='application/json')
+
         try:
             a = Account.objects.get(id=id)
             a.role = data["role"]
+            a.account = data["account"]
             a.realname = data["realname"]
             a.nickname = data["nickname"]
             a.email = data["email"]
@@ -345,7 +353,7 @@ class group_edit(View):
         dic = g.get_dic()
         del dic["acl"]
 
-        return render(request, 'group_add.html', {'title': '编辑用户组', 'url': '/admin/group/edit', 'json': Json.encode(dic), 'data': dic})
+        return render(request, 'group_add.html', {'title': '编辑用户组', 'url': '/admin/group/edit', 'data': dic})
 
     # 编辑用户组操作
     @authenticated
@@ -497,7 +505,6 @@ def group_tree(request):
         return getchildren(0)
 
     tree_obj = gettree(g)
-    print tree_obj
 
     def treenode(nodes):
         def getchildren(nodes):

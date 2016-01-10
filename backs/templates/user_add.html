@@ -36,7 +36,7 @@
 				<tr>
 					<td>性别:</td>
 					<td>
-						<select class="easyui-combobox" name="gender" dataoptions="" data-options="panelHeight:'auto',required:true">
+						<select class="easyui-combobox" name="gender" data-options="panelHeight:'auto',required:true">
 							<option value="m">男</option>
 							<option value="f">女</option>
 						</select>
@@ -49,10 +49,7 @@
 				<tr>
 					<td>锁定:</td>
 					<td>
-						<select class="easyui-combobox" name="islock" dataoptions="" data-options="panelHeight:'auto',required:true">
-							<option value="0">否</option>
-							<option value="1">是</option>
-						</select>
+						<input class="easyui-switchbutton" name="islock" value="1" {% if data.islock == '1' %}checked{% endif %}>
 					</td>
 				</tr>
 			</table>
@@ -108,6 +105,7 @@ function clearForm(){
 	$('#user_panel').form('clear');
 }
 {% if data %}
-$('#user_panel').form('load', {{ data|safe }});
+{% load tag_extras %}
+$('#user_panel').form('load', {{ data|json|safe }});
 {% endif %}
 </script>
