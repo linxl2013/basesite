@@ -1,7 +1,7 @@
-<div id="add_project_panel" class="easyui-panel tab-main-panel" title="{{ title }}" style="width:100%" data-options="fit:true,tools:'#add_project_panel_tool'">
+<div id="project_panel{{ data.id }}" class="easyui-panel tab-main-panel" title="{{ title }}" style="width:100%" data-options="fit:true,tools:'#project_panel_tool{{ data.id }}'">
 	<div style="padding:10px 60px 20px 60px">
 		<!-- <a href="#" id="btn_save" class="easyui-linkbutton" data-options="iconCls:'icon-save'">Save</a> -->
-		<form id="project_panel" method="post" action="{{ url }}" data-options="novalidate:true">
+		<form id="project_panel{{ data.id }}" method="post" action="{{ url }}" data-options="novalidate:true">
 			<table cellpadding="5" style="width:100%">
 				<tr>
 					<td>项目名称:</td>
@@ -26,7 +26,7 @@
 				<tr>
 					<td>项目负责人:</td>
 					<td>
-						<select data-placeholder="请选择负责人" id="charger" name="charger" class="chosen-select form-control" tabindex="2" style="width:50%" multiple>
+						<select data-placeholder="请选择负责人" id="charger{{ data.id }}" name="charger" class="chosen-select form-control" tabindex="2" style="width:50%" multiple>
 						{% for v in account %}
 							<option value="{{ v.account }}"{% if v.selected %} selected{% endif %}>{% if not v.realname %}{{ v.account }}{% else %}{{ v.realname }}{% endif %}</option>
 						{% endfor %}
@@ -40,19 +40,20 @@
 			{% endif %}
 		</form>
 		<div style="text-align:center;padding:5px">
-			<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitForm()">&nbsp;保&nbsp;存&nbsp;</a>&nbsp;&nbsp;
-			<a href="javascript:void(0)" class="easyui-linkbutton" onclick="clearForm()">&nbsp;清&nbsp;空&nbsp;</a>
+			<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitForm{{ data.id }}()">&nbsp;保&nbsp;存&nbsp;</a>&nbsp;&nbsp;
+			<a href="javascript:void(0)" class="easyui-linkbutton" onclick="closeForm{{ data.id }}()">&nbsp;关&nbsp;闭&nbsp;</a>
 		</div>
 	</div>
 </div>
-<div id="add_project_panel_tool">
-	<a href="javascript:void(0)" class="icon-save" onclick="javascript:$('#project_panel').submit();return false;" title="保存"></a>
+<div id="project_panel_tool{{ data.id }}">
+	<a href="javascript:void(0)" class="icon-save" onclick="javascript:submitForm{{ data.id }}();return false;" title="保存"></a>
+	<a href="javascript:void(0)" class="icon-cancel" onclick="javascript:closeForm{{ data.id }}();return false;" title="保存"></a>
 </div>
 <script type="text/javascript">
-$('#project_panel').ajaxForm({
+$('#project_panel{{ data.id }}').ajaxForm({
 	dataType: 'json',
 	beforeSend:function(){
-		return $('#project_panel').form('enableValidation').form('validate');
+		return $('#project_panel{{ data.id }}').form('enableValidation').form('validate');
 	},
 	success:function(data){
 		if(data.error == 0){
@@ -80,15 +81,18 @@ $('#project_panel').ajaxForm({
 		}
 	}
 });
-function submitForm(){
-	$('#project_panel').submit();
+function submitForm{{ data.id }}(){
+	$('#project_panel{{ data.id }}').submit();
 }
-function clearForm(){
-	$('#project_panel').form('clear');
+function clearForm{{ data.id }}(){
+	$('#project_panel{{ data.id }}').form('clear');
+}
+function closeForm{{ data.id }}(){
+	$('#tt').tabs('close', '{{ title }}');
 }
 {% if data %}
 {% load tag_extras %}
-$('#project_panel').form('load', {{ data|json|safe }});
+$('#project_panel{{ data.id }}').form('load', {{ data|json|safe }});
 {% endif %}
-if($.fn.chosen) $('#charger').chosen();
+if($.fn.chosen) $('#charger{{ data.id }}').chosen();
 </script>
