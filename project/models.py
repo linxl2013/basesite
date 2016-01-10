@@ -3,6 +3,7 @@ from django.db import models
 from django.db import connection, transaction
 from mysite2.Model import Model
 
+
 class ProjectManager(models.Manager):
 
     # 获取项目数据
@@ -22,7 +23,7 @@ class ProjectManager(models.Manager):
         left join backs_account a on p.createuserid=a.id 
         order by id asc 
         limit %s, %s
-        ''' % ((int(page) - 1) * int(count), count) 
+        ''' % ((int(page) - 1) * int(count), count)
 
         cursor = connection.cursor()
         cursor.execute(sql)
@@ -60,16 +61,19 @@ class ProjectManager(models.Manager):
             if not res_name.has_key(str(obj[0])):
                 res_name[str(obj[0])] = []
                 res_account[str(obj[0])] = []
-            res_name[str(obj[0])].append(obj[2]!='' and obj[2] or obj[1])
+            res_name[str(obj[0])].append(obj[2] != '' and obj[2] or obj[1])
             res_account[str(obj[0])].append(obj[1])
 
         for i in range(len(rows)):
             if res_name.has_key(str(rows[i]['id'])):
-                rows[i]['responsibles'] = ", ".join(res_name[str(rows[i]['id'])])
+                rows[i]['responsibles'] = ", ".join(
+                    res_name[str(rows[i]['id'])])
 
         return total, rows
 
 # 项目模型
+
+
 class Project(Model):
     projectname = models.CharField(max_length=255)
     projectcode = models.CharField(max_length=255)

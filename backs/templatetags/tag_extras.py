@@ -9,9 +9,11 @@ register = template.Library()
 def lower(value):
     return value.lower()
 
+
 @register.filter
 def upper(value):
     return value.upper()
+
 
 @register.filter
 def json(value):

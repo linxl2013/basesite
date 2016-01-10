@@ -40,10 +40,11 @@ class project_add(View):
             row['selected'] = False
             account.append(row)
 
-        return render(request, 'project_add.html', {'title': '新增项目', 'url': '/admin/project/add', 'account':account})
+        return render(request, 'project_add.html', {'title': '新增项目', 'url': '/admin/project/add', 'account': account})
 
     # 添加项目操作
     @authenticated
+    @transaction.atomic
     def post(self, request):
         form = GetForm(request)
         form.post("projectname", text="项目名称", required=True)
@@ -56,26 +57,27 @@ class project_add(View):
         charger = request.POST.getlist("charger")
 
         try:
-            p = Project()
-            p.projectname = data["projectname"]
-            p.createuserid = request.session.get('user_id')
-            if data["projectcode"]:
-                p.projectcode = data["projectcode"]
-            if data["starttime"]:
-                p.starttime = data["starttime"]
-            if data["endtime"]:
-                p.endtime = data["endtime"]
-            if data["desc"]:
-                p.desc = data["desc"]
-            p.save()
-            projectid = p.id
-
-            for v in charger:
-                p = Projectresponsible(projectid=projectid, responsible=v)
+            with transaction.atomic():
+                p = Project()
+                p.projectname = data["projectname"]
+                p.createuserid = request.session.get('user_id')
+                if data["projectcode"]:
+                    p.projectcode = data["projectcode"]
+                if data["starttime"]:
+                    p.starttime = data["starttime"]
+                if data["endtime"]:
+                    p.endtime = data["endtime"]
+                if data["desc"]:
+                    p.desc = data["desc"]
                 p.save()
+                projectid = p.id
 
-            json_data = Json.encode({'error': 0, 'id': projectid})
-            return HttpResponse(json_data, content_type='application/json')
+                for v in charger:
+                    p = Projectresponsible(projectid=projectid, responsible=v)
+                    p.save()
+
+                json_data = Json.encode({'error': 0, 'id': projectid})
+                return HttpResponse(json_data, content_type='application/json')
         except Exception, e:
             print e
             json_data = Json.encode(
@@ -105,12 +107,13 @@ class project_edit(View):
                 row['selected'] = True
             account.append(row)
 
-        return render(request, 'project_add.html', {'title': '编辑项目', 
-            'url': '/admin/project/edit', 'data': dic, 'account':account})
+        return render(request, 'project_add.html', {'title': '编辑项目',
+                                                    'url': '/admin/project/edit', 'data': dic, 'account': account})
 
     # 编辑用户操作
     # @transaction.commit_manually
     @authenticated
+    @transaction.atomic
     def post(self, request):
         id = request.POST.get("id")
 
@@ -125,27 +128,28 @@ class project_edit(View):
         charger = request.POST.getlist("charger")
 
         try:
-            p = Project.objects.get(id=id)
-            p.projectname = data["projectname"]
-            if data["projectcode"]:
-                p.projectcode = data["projectcode"]
-            if data["starttime"]:
-                p.starttime = data["starttime"]
-            if data["endtime"]:
-                p.endtime = data["endtime"]
-            if data["desc"]:
-                p.desc = data["desc"]
-            p.save()
-
-            Projectresponsible.objects.filter(projectid=id).delete()
-            for v in charger:
-                p = Projectresponsible(projectid=id, responsible=v)
+            with transaction.atomic():
+                p = Project.objects.get(id=id)
+                p.projectname = data["projectname"]
+                if data["projectcode"]:
+                    p.projectcode = data["projectcode"]
+                if data["starttime"]:
+                    p.starttime = data["starttime"]
+                if data["endtime"]:
+                    p.endtime = data["endtime"]
+                if data["desc"]:
+                    p.desc = data["desc"]
                 p.save()
 
-            # transaction.commit()
+                Projectresponsible.objects.filter(projectid=id).delete()
+                for v in charger:
+                    p = Projectresponsible(projectid=id, responsible=v)
+                    p.save()
 
-            json_data = Json.encode({'error': 0, 'id': id})
-            return HttpResponse(json_data, content_type='application/json')
+                # transaction.commit()
+
+                json_data = Json.encode({'error': 0, 'id': id})
+                return HttpResponse(json_data, content_type='application/json')
         except Exception, e:
             print e
             # transaction.rollback()
@@ -156,14 +160,18 @@ class project_edit(View):
 
 # 删除用户组
 @authenticated
+@transaction.atomic
 def project_del(request):
     id = request.POST.get("id")
     id = id.split(",")
 
     try:
-        Project.objects.filter(id__in=id).delete()
-        json_data = Json.encode({'error': 0, 'id': id})
-        return HttpResponse(json_data, content_type='application/json')
+        with transaction.atomic():
+            Project.objects.filter(id__in=id).delete()
+            Projectresponsible.objects.filter(projectid__in=id).delete()
+
+            json_data = Json.encode({'error': 0, 'id': id})
+            return HttpResponse(json_data, content_type='application/json')
     except Exception, e:
         print e
         json_data = Json.encode(

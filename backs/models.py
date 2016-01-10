@@ -16,12 +16,11 @@ class AccountManager(models.Manager):
             user = Account.objects.get(account=name)
         else:
             user = Account.objects.filter(~Q(id=id), Q(account=name))
-        
+
         if user:
             return False
         else:
             return True
-
 
     # 获取用户列表
     def get_list(self, page=0, count=100, filter={}, where='where 1'):
