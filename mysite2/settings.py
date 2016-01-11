@@ -41,6 +41,7 @@ INSTALLED_APPS = (
 
     'backs',
     'project',
+    'status',
 )
 
 MIDDLEWARE_CLASSES = (

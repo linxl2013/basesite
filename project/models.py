@@ -71,9 +71,8 @@ class ProjectManager(models.Manager):
 
         return total, rows
 
+
 # 项目模型
-
-
 class Project(Model):
     projectname = models.CharField(max_length=255)
     projectcode = models.CharField(max_length=255)
