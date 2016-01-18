@@ -1,29 +1,65 @@
 # coding:utf-8
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.views.generic.base import View
+from status.models import *
 from backs.filter import *
+from mysite2.utils import *
 
 
-# 状态设置
-@authenticated
-def status(request, statustype):
-    return render(request, 'status.html', {'page_id': 'status', 'statustype': statustype})
+class status(View):
+
+    # 状态设置
+    @authenticated
+    def get(self, request, statustype):
+        return render(request, 'status.html', {'page_id': 'status', 'statustype': statustype})
+
+    # 新增编辑
+    def post(self, request, statustype):
+        json = request.POST.get("data")
+        data = Json.decode(json)
+
+        try:
+            if len(data) > 0:
+                for v in data:
+                    if v['id'] != '':
+                        s = Status.objects.get(id=v['id'])
+                    else:
+                        s = Status()
+                    s.statustype = statustype
+                    s.name = v['name']
+                    s.code = v['code']
+                    s.save()
+
+            return HttpResponse('1')
+
+        except Exception, e:
+            return HttpResponse('0')
 
 
+# 状态列表
 @authenticated
 def list(request, statustype):
-    ret = '''
-   {"total":28,"rows":[
-   {"id":"1","name":"Koi","code":"Large"},
-   {"id":"2","name":"Dalmation","code":"Spotted Adult Female"},
-   {"id":"3","name":"Rattlesnake","code":"Venomless"},
-   {"id":"4","name":"Rattlesnake","code":"Rattleless"},
-   {"id":"5","name":"Iguana","code":"Green Adult"},
-   {"id":"6","name":"Manx","code":"Tailless"},
-   {"id":"7","name":"Manx","code":"With tail"},
-   {"id":"8","name":"Persian","code":"Adult Female"},
-   {"id":"9","name":"Persian","code":"Adult Male"},
-   {"id":"10","name":"Amazon Parrot","code":"Adult Male"}
-   ]}
-   '''
-    return HttpResponse(ret, content_type='application/json')
+    total = rows = Status.objects.count()
+    fetchall = Status.objects.all()
+
+    rows = []
+    for obj in fetchall:
+        dic = obj.get_dic()
+        rows.append(dic)
+
+    data = {'total': total, 'rows': rows}
+    return HttpResponse(Json.encode(data), content_type='application/json')
+
+
+# 删除状态
+def delete(request):
+    statustype = request.POST.get("type")
+    id = request.POST.get("id")
+    try:
+        Status.objects.filter(id=id, statustype=statustype).delete()
+
+        return HttpResponse('1')
+
+    except Exception, e:
+        return HttpResponse('0')

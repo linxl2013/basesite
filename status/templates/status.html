@@ -1,4 +1,4 @@
-    <table id="dg" class="easyui-datagrid" 
+    <table id="status{{statustype}}" class="easyui-datagrid" 
             data-options="
                 iconCls: 'icon-edit',
                 singleSelect: true,
@@ -8,8 +8,8 @@
                 border: false,
                 fitColumns: false,
                 fit: true,
-                onClickCell: onClickCell,
-                onEndEdit: onEndEdit
+                onClickCell: {{statustype}}.onClickCell,
+                onEndEdit: {{statustype}}.onEndEdit
             ">
         <thead>
             <tr>
@@ -21,74 +21,135 @@
     </table>
  
     <div id="tb" style="height:auto">
-        <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true" onclick="append()">添加</a>
-        <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-remove',plain:true" onclick="removeit()">删除</a>
-        <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-save',plain:true" onclick="accept()">保存</a>
-        <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-undo',plain:true" onclick="reject()">撤销</a>
-        <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true" onclick="getChanges()">GetChanges</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-add',plain:true" onclick="{{statustype}}.append()">添加</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-remove',plain:true" onclick="{{statustype}}.removeit()">删除</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-save',plain:true" onclick="{{statustype}}.accept()">保存</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-undo',plain:true" onclick="{{statustype}}.reject()">撤销</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-reload',plain:true" onclick="{{statustype}}.reload()">刷新</a>
+        <!-- <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-search',plain:true" onclick="{{statustype}}.getChanges()">GetChanges</a> -->
     </div>
     
     <script type="text/javascript">
-        var editIndex = undefined;
-        function endEditing(){
-            if (editIndex == undefined){return true}
-            if ($('#dg').datagrid('validateRow', editIndex)){
-                $('#dg').datagrid('endEdit', editIndex);
-                editIndex = undefined;
+        var {{statustype}} = {};
+        {{statustype}}.editIndex = undefined;
+        {{statustype}}.endEditing = function(){
+            if ({{statustype}}.editIndex == undefined){return true}
+            if ($('#status{{statustype}}').datagrid('validateRow', {{statustype}}.editIndex)){
+                $('#status{{statustype}}').datagrid('endEdit', {{statustype}}.editIndex);
+                {{statustype}}.editIndex = undefined;
                 return true;
             } else {
                 return false;
             }
         }
-        function onClickCell(index, field){
-            if (editIndex != index){
-                if (endEditing()){
-                    $('#dg').datagrid('selectRow', index)
+        {{statustype}}.onClickCell = function(index, field){
+            if ({{statustype}}.editIndex != index){
+                if ({{statustype}}.endEditing()){
+                    $('#status{{statustype}}').datagrid('selectRow', index)
                             .datagrid('beginEdit', index);
-                    var ed = $('#dg').datagrid('getEditor', {index:index,field:field});
+                    var ed = $('#status{{statustype}}').datagrid('getEditor', {index:index,field:'name'});
                     if (ed){
                         ($(ed.target).data('textbox') ? $(ed.target).textbox('textbox') : $(ed.target)).focus();
                     }
-                    editIndex = index;
+                    {{statustype}}.editIndex = index;
                 } else {
                     setTimeout(function(){
-                        $('#dg').datagrid('selectRow', editIndex);
+                        $('#status{{statustype}}').datagrid('selectRow', {{statustype}}.editIndex);
                     },0);
                 }
             }
         }
-        function onEndEdit(index, row){
-            var ed = $(this).datagrid('getEditor', {
-                index: index,
-                field: 'productid'
-            });
+        {{statustype}}.onEndEdit = function(index, row){
+            // var ed = $(this).datagrid('getEditor', {
+            //     index: index,
+            //     field: 'productid'
+            // });
             // row.productname = $(ed.target).combobox('getText');
+            // console.log(row);
         }
-        function append(){
-            if (endEditing()){
-                $('#dg').datagrid('appendRow',{status:'P'});
-                editIndex = $('#dg').datagrid('getRows').length-1;
-                $('#dg').datagrid('selectRow', editIndex)
-                        .datagrid('beginEdit', editIndex);
+        {{statustype}}.append = function(){
+            if ({{statustype}}.endEditing()){
+                $('#status{{statustype}}').datagrid('appendRow',{id:''});
+                {{statustype}}.editIndex = $('#status{{statustype}}').datagrid('getRows').length-1;
+                $('#status{{statustype}}').datagrid('selectRow', {{statustype}}.editIndex)
+                        .datagrid('beginEdit', {{statustype}}.editIndex);
+                var ed = $('#status{{statustype}}').datagrid('getEditor', {index:{{statustype}}.editIndex,field:'name'});
+                if (ed){
+                    ($(ed.target).data('textbox') ? $(ed.target).textbox('textbox') : $(ed.target)).focus();
+                }
             }
         }
-        function removeit(){
-            if (editIndex == undefined){return}
-            $('#dg').datagrid('cancelEdit', editIndex)
-                    .datagrid('deleteRow', editIndex);
-            editIndex = undefined;
-        }
-        function accept(){
-            if (endEditing()){
-                $('#dg').datagrid('acceptChanges');
+        {{statustype}}.removeit = function(){
+            if ({{statustype}}.editIndex == undefined){return}
+            var row = $('#status{{statustype}}').datagrid('getSelected');
+            if (row.id != ''){
+                $.ajax({
+                    type: "POST",
+                    url: "/admin/status/del",
+                    data: {type : "{{statustype}}", id : row.id},
+                    success: function(msg){
+                        if (msg == '1'){
+                            $('#status{{statustype}}').datagrid('cancelEdit', {{statustype}}.editIndex)
+                                    .datagrid('deleteRow', {{statustype}}.editIndex);
+                            $('#status{{statustype}}').datagrid('acceptChanges');
+                            {{statustype}}.editIndex = undefined;
+                        }else{
+                            alert('删除错误');
+                        }
+                    }
+                });
+            }else{
+                $('#status{{statustype}}').datagrid('cancelEdit', {{statustype}}.editIndex)
+                        .datagrid('deleteRow', {{statustype}}.editIndex);
+                {{statustype}}.editIndex = undefined;
             }
         }
-        function reject(){
-            $('#dg').datagrid('rejectChanges');
-            editIndex = undefined;
+        {{statustype}}.accept = function(){
+            if ({{statustype}}.endEditing()){
+                var rows = $('#status{{statustype}}').datagrid('getChanges');
+                var data = [], i = 0;
+                for(var k in rows) {
+                    data[i++] = '{"id":"'+rows[k].id+'"';
+                    data[i++] = '"name":"'+rows[k].name+'"';
+                    data[i++] = '"code":"'+rows[k].code+'"}';
+                }
+                data = '['+data.join(',')+']';
+                $.ajax({
+                    type: "POST",
+                    url: "/admin/status/{{statustype}}",
+                    data: {data : data},
+                    success: function(msg){
+                        if (msg == '1'){
+                            $('#status{{statustype}}').datagrid('acceptChanges');
+                            $('#status{{statustype}}').datagrid('reload');
+                        }else{
+                            alert('提交错误');
+                        }
+                   }
+                });
+            }
         }
-        function getChanges(){
-            var rows = $('#dg').datagrid('getChanges');
+        {{statustype}}.reject = function(){
+            $('#status{{statustype}}').datagrid('rejectChanges');
+            {{statustype}}.editIndex = undefined;
+        }
+        {{statustype}}.reload = function(){
+            $('#status{{statustype}}').datagrid('reload');
+        }
+        {{statustype}}.getChanges = function(){
+            var rows = $('#status{{statustype}}').datagrid('getChanges');
+            console.log(rows);
             alert(rows.length+' rows are changed!');
         }
+
+        $('#status{{statustype}}').parent().undelegate('click').delegate('.datagrid-btable', 'click', function(e){
+            e.stopPropagation();
+            e.preventDefault();
+        });
+        $('#status{{statustype}}').parent().delegate('.datagrid-body', 'click', function(e){
+            {{statustype}}.endEditing();
+            $('#status{{statustype}}').datagrid('unselectAll');
+            e.stopPropagation();
+            e.preventDefault();
+        });
     </script>

@@ -18,11 +18,11 @@ class Json:
 
     @staticmethod
     def decode(s, default=[]):
-        s = Filters.trim(str(s))
+        s = str(s).strip()
         if '' == s:
             return default
         try:
-            return escape.json_decode(s)
+            return json.loads(s)
         except Exception, e:
             return default
 

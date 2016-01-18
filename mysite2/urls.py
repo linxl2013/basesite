@@ -21,6 +21,7 @@ from django.contrib import admin
 # from backs.views import index
 from backs.views import *
 from project.views import *
+from status.views import *
 
 urlpatterns = [
 	# url(r'^$', 'backs.views.index', name='home'),
@@ -60,6 +61,7 @@ urlpatterns = [
     url(r'^admin/project/edit$', project_edit.as_view(), name='project_edit'),
     url(r'^admin/project/del$', 'project.views.project_del', name='project_del'),
 
-    url(r'^admin/status/(task|deploy)$', 'status.views.status', name='stauts'),
+    url(r'^admin/status/(task|deploy)$', status.as_view(), name='stauts'),
     url(r'^admin/status/list/(task|deploy)$', 'status.views.list', name='stauts_list'),
+    url(r'^admin/status/del$', 'status.views.delete', name='delete'),
 ]
