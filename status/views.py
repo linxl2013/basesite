@@ -40,8 +40,8 @@ class status(View):
 # 状态列表
 @authenticated
 def list(request, statustype):
-    total = rows = Status.objects.count()
-    fetchall = Status.objects.all()
+    total = rows = Status.objects.filter(statustype=statustype).count()
+    fetchall = Status.objects.filter(statustype=statustype).all()
 
     rows = []
     for obj in fetchall:
